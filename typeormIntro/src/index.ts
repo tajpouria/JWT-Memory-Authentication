@@ -1,19 +1,24 @@
 import "reflect-metadata";
+import express from "express";
+import * as bodyParser from "body-parser";
 import { createConnection } from "typeorm";
-import { User } from "./entity/User";
+
+import { AppRouter } from "./routes/AppRouter";
+
+import "./controllers/RootController";
+import "./controllers/UserController";
 
 createConnection()
   .then(async connection => {
-    const user = new User();
-    user.firstName = "John";
-    user.lastName = "Deo";
-    user.age = 40;
-    user.email = "hello@gmail.com";
+    const app = express();
 
-    await connection.manager.save(user);
+    app.use(bodyParser.json());
 
-    const users = await connection.manager.find(User);
+    const port = 4000;
+    app.listen(port, () => {
+      console.info(`Listening on port ${port}...`);
 
-    console.log(users);
+      app.use(AppRouter.instance);
+    });
   })
   .catch(err => console.error(err));
