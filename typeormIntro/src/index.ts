@@ -7,6 +7,7 @@ import { AppRouter } from "./routes/AppRouter";
 
 import "./controllers/RootController";
 import "./controllers/UserController";
+import "./controllers/QuestionCategoryController";
 
 createConnection()
   .then(async connection => {

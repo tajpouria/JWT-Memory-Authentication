@@ -6,7 +6,7 @@ provides great features that helps us to develop any kind of application that us
 
 > npm i -g typeorm
 
-> typeorm init --name server --database postgress
+> typeorm init --name server --database postgres
 
 ormconfig.json
 
@@ -125,7 +125,109 @@ export class User extends BaseEntity {} // extending BaseEntity make available u
   }
 ```
 
-one-to-one relations
+### one-to-one relations
+
+```typescript
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  JoinColumn
+} from "typeorm";
+
+@Entity()
+export class Profile {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  favoriteColor: string;
+}
+
+@Entity()
+export class User extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToOne(type => Profile) // target table
+  @JoinColumn() // must be set only on one side of relation the side that must have foreign key
+  profile: Profile;
+}
+```
+
+```sql
++-------------+--------------+----------------------------+
+|                        user                             |
++-------------+--------------+----------------------------+
+| id          | int(11)      | PRIMARY KEY AUTO_INCREMENT |
+| profileId   | integer      |                            |
++-------------+--------------+----------------------------+
+
+Foreign-key constraints:
+    "FK_9466682df91534dd95e4dbaa616" FOREIGN KEY ("profileId") REFERENCES profile(id)
+
++-------------+--------------+----------------------------+
+|                          profile                        |
++-------------+--------------+----------------------------+
+| id          | int(11)      | PRIMARY KEY AUTO_INCREMENT |
+|favoriteColor| int(11)      | FOREIGN KEY                |
++-------------+--------------+----------------------------+
+```
+
+### create relations
+
+```typescript
+const profile = await Profile.create(raq.body.profile).save();
+const user = await User.create({
+  firstName: req.body.firstName,
+  profile: profile
+}).save();
+```
+
+### fetch relations
+
+to fetch the relations you can simply specify it on as relations at options object
+
+```typescript
+const user = User.find({ relations: ["profile"] });
+const user = User.findByIds(id, { relations: ["profile"] });
+```
+
+### Many-To-One and One-To-Many
+
+```typescript
+@Entity()
+export class User extends BaseClass {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToMany(type => User, photo => photo.user)
+  photos: Photo[];
+}
+
+@Entity()
+export class Photo extends BaseClass {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  url: string;
+
+  @ManyToOne(type => User, user => user.photos)
+  user: User;
+}
+
+// create relations
+const photo1 = await Photo.create({ url: "photo1" }).save();
+const photo2 = await Photo.create({ url: "photo2" }).save();
+
+const user = await new User({ ...userInfo, photos: [photo1, photo2] }).save();
+```
+
+### Many-To-Many
+
+## introduction to Apollo graphQL
 
 ## Introduction To Apollo Server
 
@@ -154,7 +256,10 @@ type Launch: {
   mission: Mission
 }
 type Mission: {
-  missionPatch(size:PatchSize):String
+  missionPatch(size:PatchSize, description: DescriptionInput }):String
+}
+input DescriptionInput = {
+  desc: String!
 }
 enum PatchSize {
   SMALL
@@ -442,6 +547,29 @@ export default function {
 }
 ```
 
+## React Hook Reminder
+
+### useState
+
+- avoid reset expensive initialState
+
+```javascript
+function expensiveInitialState() {
+  return 10;
+}
+const [state, setState] = useState(() => expensiveInitialState()); // setup initialState by return it from a function will help to set it once and no reset that whenever component reRender
+```
+
+- avoid overriding update (two update at the same time)
+
+```javascript
+const [count, setCount] = useState(0);
+return (
+  <button onClick={() => setCount(currentCount => currentCount + 1)}>
+    Increment
+  </button>
+);
+```
 
 ## Interesting Stuff
 
