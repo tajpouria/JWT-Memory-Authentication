@@ -227,6 +227,49 @@ const user = await new User({ ...userInfo, photos: [photo1, photo2] }).save();
 
 ### Many-To-Many
 
+```typescript
+Entity();
+export class Author extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @OneToMany(() => AuthorBook, ab => ab.author)
+  bookConnection: Author;
+}
+
+Entity();
+export class Book extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @OneToMany(() => AuthorBook, ab => ab.Book)
+  authorConnection: Book;
+}
+
+Entity();
+export class AuthorBook extends BaseEntity {
+  @PrimaryColumn()
+  authorId: number;
+
+  @PrimaryColumn()
+  bookId: number;
+
+  @ManyToOne(() => Author, author => author.bookConnection, { primary: true })
+  @JoinColumn({ name: "bookId" })
+  author: Author;
+
+  @ManyToOne(() => Book, book => book.authorConnection, { primary: true })
+  @JoinColumn({ name: "bookid" })
+  book: Book;
+}
+```
+
 ## introduction to Apollo graphQL
 
 ## Introduction To Apollo Server
@@ -571,6 +614,30 @@ return (
 );
 ```
 
+- why we people care about hooks??! cuz they can write it's custom hooks
+
+````javascript
+// ./src/hooks/useForm.js
+
+import {useState} from 'react'
+
+export const useForm  = (initialState) =>{
+  const [values, setValues] = useState(initialState)
+
+  const onChange = (event ) => setValues((currentValues) => ({...currentValues, [event.target.name]: [event.target.value]}))
+
+  return [values, onChange]
+}
+
+// ./src/App.jsx
+
+import  { useForm} from './hooks/useForm'
+
+const [values, handleChange] = useForm({email:""})
+
+return (<input name="email" value={values.email} onChange={handleChange}/>)
+```
+
 ## Interesting Stuff
 
 ### preferred tsconfig
@@ -587,3 +654,4 @@ DROP DATABASE already accessing by other users:
 
 > sudo /etc/init.d/postgresql stop
 > sudo /etc/init.d/postgresql start
+````
