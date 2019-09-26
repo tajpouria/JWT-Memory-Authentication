@@ -90,7 +90,16 @@ const isLoggedIn = (parent, args, context) => {
 };
 ```
 
-### Type ORM
+### cookieParser
+
+> yarn add -D cookieParser
+> yarn add cookieParser
+
+by default cookie is available on req.headers using **app.use(cookieParser())** allow to access parsed cookie at **req.cookies**.
+
+
+
+## Type ORM
 
 provides great features that helps us to develop any kind of application that uses database.
 

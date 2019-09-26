@@ -4,6 +4,7 @@ import { MyContext } from "./myContext";
 import { createRefreshToken, createAccessToken } from "./auth";
 import { combineResolvers } from "graphql-resolvers";
 import { isLoggedIn } from "./isLoggedIn";
+import { setRefreshToken } from "./setRefreshToken";
 
 export const resolvers = {
     Query: {
@@ -46,11 +47,7 @@ export const resolvers = {
                 throw new Error("Invalid Email or Password");
             }
 
-            res.cookie(
-                "jit",
-                createRefreshToken(user),
-                { httpOnly: true } // javascript cannot not access it anymore
-            );
+            setRefreshToken(res, user);
 
             return createAccessToken(user);
         }
