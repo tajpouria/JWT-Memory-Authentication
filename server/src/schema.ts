@@ -10,11 +10,14 @@ export const typeDefs = gql`
         id: ID
         email: String
         password: String
+        refreshTokenVersion: Int
     }
 
     type Mutation {
         register(email: String!, password: String!): Boolean
 
         login(email: String!, password: String!): String
+
+        revokeRefreshTokenForUser(userId: ID!): Boolean
     }
 `;

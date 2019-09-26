@@ -1,10 +1,11 @@
 import { User } from "./entity/User";
 import { hash, compare } from "bcryptjs";
 import { MyContext } from "./myContext";
-import { createRefreshToken, createAccessToken } from "./auth";
+import { createAccessToken } from "./auth";
 import { combineResolvers } from "graphql-resolvers";
 import { isLoggedIn } from "./isLoggedIn";
 import { setRefreshToken } from "./setRefreshToken";
+import { getConnection } from "typeorm";
 
 export const resolvers = {
     Query: {
@@ -50,6 +51,18 @@ export const resolvers = {
             setRefreshToken(res, user);
 
             return createAccessToken(user);
+        },
+
+        revokeRefreshTokenForUser: async (_parent: any, { userId }: any) => {
+            try {
+                await getConnection()
+                    .getRepository(User)
+                    .increment({ id: userId }, "refreshTokenVersion", 1);
+
+                return true;
+            } catch (err) {
+                throw new Error(err);
+            }
         }
     }
 };

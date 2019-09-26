@@ -34,6 +34,47 @@ allows an application to obtain new access token without prompting the user.
 
 **to receive refresh token as cookie at grapqil make sure set _"request.credentials": "include"_ at setting tab**
 
+### revoke refresh token
+
+there is a several ways to revoke user refresh token but in this case we follow refreshTokenVersion instruction:
+
+./entity/User.ts
+
+```typescript
+@Entity("User")
+export class User extends BaseEntity {
+    @Column("int", { default: 0 })
+    refreshTokenVersion: number;
+}
+```
+
+./resolvers.ts
+
+```typescript
+export const resolvers = {
+    revokeRefreshTokenForUser: async (_parent,  {userId}) => {
+        await getConnection()
+            .getRepository(User)
+            .increment({ id: userId }, "refreshTokenVersion", 1);
+        return;
+    }
+
+    login: async (email, password) => {
+        // ...
+
+        res.cookie('jid', {userId: user.id, refreshTokenVersion: user.refreshTokenVersion})
+    }
+
+    refreshToken :(_parent, _args, {req}) => {
+        const refreshToken = req.cookies.jid
+        const payload = verify(refreshToken, 'secret')
+        if(payload.refreshTokenVersion !== user.refreshTokenVersion){
+            return 'refresh token is invoked your should provide new one'
+        }
+    }
+};
+```
+
 ```typescript
 import { sign } from "jsonwebToken";
 export const resolvers = {
@@ -96,8 +137,6 @@ const isLoggedIn = (parent, args, context) => {
 > yarn add cookieParser
 
 by default cookie is available on req.headers using **app.use(cookieParser())** allow to access parsed cookie at **req.cookies**.
-
-
 
 ## Type ORM
 

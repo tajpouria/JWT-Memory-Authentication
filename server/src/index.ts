@@ -44,6 +44,11 @@ import { setRefreshToken } from "./setRefreshToken";
             throw new Error("User not found");
         }
 
+        if (payload.refreshTokenVersion !== user.refreshTokenVersion) {
+            res.status(422).send({ ok: false, accessToken: "" });
+            throw new Error("Invalid refreshToken version");
+        }
+
         setRefreshToken(res, user);
 
         res.send({ ok: true, accessToken: createAccessToken(user) });
