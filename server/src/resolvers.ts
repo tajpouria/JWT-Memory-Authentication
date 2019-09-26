@@ -1,9 +1,19 @@
 import { User } from "./entity/User";
-import { hash } from "bcryptjs";
+import { hash, compare } from "bcryptjs";
+import { MyContext } from "./myContext";
+import { createRefreshToken, createAccessToken } from "./auth";
+import { combineResolvers } from "graphql-resolvers";
+import { isLoggedIn } from "./isLoggedIn";
 
 export const resolvers = {
     Query: {
-        users: async () => await User.find()
+        users: async () => await User.find(),
+
+        hi: combineResolvers(
+            isLoggedIn,
+            (_parent: any, args: any, context: MyContext) =>
+                `userId is ${context.payload!.userId}`
+        )
     },
     Mutation: {
         register: async (_parent: any, args: any) => {
@@ -18,6 +28,31 @@ export const resolvers = {
                 console.error(err);
                 return false;
             }
+        },
+
+        login: async (
+            _parent: any,
+            { email, password }: any,
+            { res }: MyContext
+        ) => {
+            const user = await User.findOne({ where: { email } });
+            if (!user) {
+                throw new Error("Invalid Email or Password");
+            }
+
+            const isValidEmailAndPass = await compare(password, user.password);
+
+            if (!isValidEmailAndPass) {
+                throw new Error("Invalid Email or Password");
+            }
+
+            res.cookie(
+                "jit",
+                createRefreshToken(user),
+                { httpOnly: true } // javascript cannot not access it anymore
+            );
+
+            return createAccessToken(user);
         }
     }
 };

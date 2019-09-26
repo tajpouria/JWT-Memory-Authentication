@@ -1,3 +1,95 @@
+# JWT Memory Authentication
+
+## setup apollo-server-express
+
+### installing dependencies
+
+> yarn add graphql apollo-server-express express
+> yarn add @types/graphql @types/express
+
+### setup ApolloServer
+
+```typescript
+(() => {
+    const app = express();
+
+    const apolloServer = new ApolloServer({
+        context: ({ req, res }) => ({ req, res }),
+        typeDefs,
+        resolvers
+    });
+    apolloServer.applyMiddleware({ app });
+
+    createConnection();
+
+    app.listen(4000, () => console.info(`Listening on port 4000`));
+})();
+```
+
+### access token and refresh token
+
+access token uses to ensure the user has access to appropriate resources and typically have a limited lifetime. when the access token being expire or become invalid
+but the application still needs to access a protected resources; to solve this problem, OAuth 2.0 introduced an artifact called a refresh token the a refresh token
+allows an application to obtain new access token without prompting the user.
+
+**to receive refresh token as cookie at grapqil make sure set _"request.credentials": "include"_ at setting tab**
+
+```typescript
+import { sign } from "jsonwebToken";
+export const resolvers = {
+    resolvers: {
+        login: async (_parent: any, { email, password }: any, { res }) => {
+            const user = await User.findOne({ where: { email } });
+
+            // set refresh token in cookie
+
+            res.cookie(
+                "jit",
+                sign({ userId: user.id }, "RTSecret", { expiresIn: "7d" }),
+                { httpOnly: true } // javascript cannot not access it anymore
+            );
+
+            // return access Token
+            return sign({ userId: user.id }, "ATSecret", { expiresIn: "15m" });
+        }
+    }
+};
+```
+
+### using middleware(combine reducers) in apollo-server express
+
+> yarn add graphql-resolvers
+> yarn add -D @types/graphql-resolvers
+
+```typescript
+import { skip, combineResolvers } from "graphql-resolvers";
+
+const logger = (parent, args, context) => {
+    console.log(context);
+    skip;
+};
+
+export const resolvers = {
+    hi: combineResolvers(logger, () => "hi")
+};
+```
+
+### update context based on req.headers
+
+```typescript
+import { verify } from "jsonwebtoken";
+
+const isLoggedIn = (parent, args, context) => {
+    const token = context.req.headers.Authorization.split(
+        " "
+    )[1]; /* cuz we send {"Authorization": "bearer eyJhbGciOiJIUzI1NiIs"} */
+
+    const payload = verify(token, "secret");
+
+    context.payload = { userId: payload.userId };
+};
+```
+
 ### Type ORM
 
 provides great features that helps us to develop any kind of application that uses database.
@@ -12,22 +104,22 @@ ormconfig.json
 
 ```json
 {
-  "type": "postgres",
-  "host": "localhost",
-  "username": "postgres",
-  "password": "postgres",
-  "port": 5432,
-  "database": "jwt-memory-auth",
-  "synchronize": true,
-  "logging": false,
-  "entities": ["src/entity/**/*.ts"],
-  "migrations": ["src/migration/**/*.ts"],
-  "subscribers": ["src/subscriber/**/*.ts"],
-  "cli": {
-    "entitiesDir": "src/entity",
-    "migrationsDir": "src/migration",
-    "subscribersDir": "src/subscriber"
-  }
+    "type": "postgres",
+    "host": "localhost",
+    "username": "postgres",
+    "password": "postgres",
+    "port": 5432,
+    "database": "jwt-memory-auth",
+    "synchronize": true,
+    "logging": false,
+    "entities": ["src/entity/**/*.ts"],
+    "migrations": ["src/migration/**/*.ts"],
+    "subscribers": ["src/subscriber/**/*.ts"],
+    "cli": {
+        "entitiesDir": "src/entity",
+        "migrationsDir": "src/migration",
+        "subscribersDir": "src/subscriber"
+    }
 }
 ```
 
@@ -42,20 +134,20 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity("tableName")
 export class User {
-  @PrimaryGeneratedColumn
-  id: number;
+    @PrimaryGeneratedColumn
+    id: number;
 
-  @Column({ type: "varchar", length: 50 })
-  firstName: string;
+    @Column({ type: "varchar", length: 50 })
+    firstName: string;
 
-  @Column({ type: "varchar", length: 50 })
-  lastName: string;
+    @Column({ type: "varchar", length: 50 })
+    lastName: string;
 
-  @Column({ type: "bool", default: false })
-  confirmed: boolean;
+    @Column({ type: "bool", default: false })
+    confirmed: boolean;
 
-  @Column("int")
-  age: number;
+    @Column("int")
+    age: number;
 }
 ```
 
@@ -67,18 +159,18 @@ import { createConnection } from "typeorm";
 import { User } from "./entity/User";
 
 createConnection()
-  .then(async connection => {
-    const user = new User();
-    user.firstName = "John";
-    user.lastName = "Deo";
-    user.age = 40;
-    user.email = "hello@gmail.com";
+    .then(async connection => {
+        const user = new User();
+        user.firstName = "John";
+        user.lastName = "Deo";
+        user.age = 40;
+        user.email = "hello@gmail.com";
 
-    await connection.manager.save(user);
+        await connection.manager.save(user);
 
-    const users = await connection.manager.find(User);
-  })
-  .catch(err => console.err(err));
+        const users = await connection.manager.find(User);
+    })
+    .catch(err => console.err(err));
 ```
 
 CRUD in typeorm
@@ -129,30 +221,30 @@ export class User extends BaseEntity {} // extending BaseEntity make available u
 
 ```typescript
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToOne,
-  JoinColumn
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    OneToOne,
+    JoinColumn
 } from "typeorm";
 
 @Entity()
 export class Profile {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column()
-  favoriteColor: string;
+    @Column()
+    favoriteColor: string;
 }
 
 @Entity()
 export class User extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @OneToOne(type => Profile) // target table
-  @JoinColumn() // must be set only on one side of relation the side that must have foreign key
-  profile: Profile;
+    @OneToOne(type => Profile) // target table
+    @JoinColumn() // must be set only on one side of relation the side that must have foreign key
+    profile: Profile;
 }
 ```
 
@@ -180,8 +272,8 @@ Foreign-key constraints:
 ```typescript
 const profile = await Profile.create(raq.body.profile).save();
 const user = await User.create({
-  firstName: req.body.firstName,
-  profile: profile
+    firstName: req.body.firstName,
+    profile: profile
 }).save();
 ```
 
@@ -199,23 +291,23 @@ const user = User.findByIds(id, { relations: ["profile"] });
 ```typescript
 @Entity()
 export class User extends BaseClass {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @OneToMany(type => User, photo => photo.user)
-  photos: Photo[];
+    @OneToMany(type => User, photo => photo.user)
+    photos: Photo[];
 }
 
 @Entity()
 export class Photo extends BaseClass {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column()
-  url: string;
+    @Column()
+    url: string;
 
-  @ManyToOne(type => User, user => user.photos)
-  user: User;
+    @ManyToOne(type => User, user => user.photos)
+    user: User;
 }
 
 // create relations
@@ -230,43 +322,43 @@ const user = await new User({ ...userInfo, photos: [photo1, photo2] }).save();
 ```typescript
 Entity();
 export class Author extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column()
-  name: string;
+    @Column()
+    name: string;
 
-  @OneToMany(() => AuthorBook, ab => ab.author)
-  bookConnection: Author;
+    @OneToMany(() => AuthorBook, ab => ab.author)
+    bookConnection: Author;
 }
 
 Entity();
 export class Book extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column()
-  name: string;
+    @Column()
+    name: string;
 
-  @OneToMany(() => AuthorBook, ab => ab.Book)
-  authorConnection: Book;
+    @OneToMany(() => AuthorBook, ab => ab.Book)
+    authorConnection: Book;
 }
 
 Entity();
 export class AuthorBook extends BaseEntity {
-  @PrimaryColumn()
-  authorId: number;
+    @PrimaryColumn()
+    authorId: number;
 
-  @PrimaryColumn()
-  bookId: number;
+    @PrimaryColumn()
+    bookId: number;
 
-  @ManyToOne(() => Author, author => author.bookConnection, { primary: true })
-  @JoinColumn({ name: "bookId" })
-  author: Author;
+    @ManyToOne(() => Author, author => author.bookConnection, { primary: true })
+    @JoinColumn({ name: "bookId" })
+    author: Author;
 
-  @ManyToOne(() => Book, book => book.authorConnection, { primary: true })
-  @JoinColumn({ name: "bookid" })
-  book: Book;
+    @ManyToOne(() => Book, book => book.authorConnection, { primary: true })
+    @JoinColumn({ name: "bookid" })
+    book: Book;
 }
 ```
 
@@ -278,8 +370,8 @@ export class AuthorBook extends BaseEntity {
 
 Application that run apollo server needs require two top-level dependencies:
 
-- apollo-server : is the core library to define the shape of data and how fetch it.
-- graphql : the library used to build a graphql schema and run the queries.
+-   apollo-server : is the core library to define the shape of data and how fetch it.
+-   graphql : the library used to build a graphql schema and run the queries.
 
 ### build a schema
 
@@ -333,13 +425,15 @@ this package exposes **RESTDataSource** class that is responsible for fetching d
 const { RESTDataSource } = require("apollo-datasource-rest");
 
 class LaunchAPI extends RESTDataSource {
-  constructor() {
-    this.baseURL = "https://api.spacexdata.com/v2/";
-  }
+    constructor() {
+        this.baseURL = "https://api.spacexdata.com/v2/";
+    }
 
-  async getLaunchById(launchId) {
-    const response = await this.get("launches", { flight_number: launchId }); // https://api.spacexdata.com/v2/launches?flight_number=launchId
-  }
+    async getLaunchById(launchId) {
+        const response = await this.get("launches", {
+            flight_number: launchId
+        }); // https://api.spacexdata.com/v2/launches?flight_number=launchId
+    }
 }
 
 module.exports = LaunchAPI;
@@ -406,21 +500,23 @@ const resolvers = require("./resolvers");
 const { LaunchAPI } = require("./datasources/launch.js");
 
 const server = new ApolloServer({
-  context: async ({ req }) => {
-    const auth = req.headers && req.headers.authorization;
-    return auth
-      ? { authorization: req.headers.authorization }
-      : { authorization: "not authorized" };
-  },
-  typDefs,
-  resolver,
-  dataSources: () => ({
-    launchAPI: new LaunchAPI()
-  })
+    context: async ({ req, res }) => {
+        /* to access the res.cookie you can also return res from here return ({req, res}) */
+
+        const auth = req.headers && req.headers.authorization;
+        return auth
+            ? { authorization: req.headers.authorization }
+            : { authorization: "not authorized" };
+    },
+    typDefs,
+    resolver,
+    dataSources: () => ({
+        launchAPI: new LaunchAPI()
+    })
 });
 
 server.listen().then(({ url }) => {
-  console.log(`Server is Running on ${url}`);
+    console.log(`Server is Running on ${url}`);
 });
 ```
 
@@ -428,17 +524,17 @@ server.listen().then(({ url }) => {
 
 ### install dependencies
 
-- apollo-client : a complete data management solution with an intelligent cache
+-   apollo-client : a complete data management solution with an intelligent cache
 
-- react-apollo : the view layer integrated for React to export components such as **Query** and **Mutation**
+-   react-apollo : the view layer integrated for React to export components such as **Query** and **Mutation**
 
-- graphql-tag : the tag function **gql** to wrap our query strings in order to parse them into AST
+-   graphql-tag : the tag function **gql** to wrap our query strings in order to parse them into AST
 
-- @apollo-react-hooks
+-   @apollo-react-hooks
 
-- apollo-cache-inmemory
+-   apollo-cache-inmemory
 
-- apollo-link-http
+-   apollo-link-http
 
 ### create ApolloClient
 
@@ -451,10 +547,10 @@ import { HttpLink } from "apollo-link-http";
 
 const cache = new InMemoryCache();
 const link = new HttpLink({
-  uri: "http://localhost:4000",
-  headers: {
-    authorization: localStorage.getItem("token")
-  }
+    uri: "http://localhost:4000",
+    headers: {
+        authorization: localStorage.getItem("token")
+    }
 });
 
 const client = new ApolloClient({ cache, link });
@@ -466,19 +562,19 @@ const client = new ApolloClient({ cache, link });
 import gql from "graphql-tag";
 
 client
-  .query({
-    query: gql`
-      query getLaunch {
-        Launch(id: 56) {
-          id
-          mission {
-            name
-          }
-        }
-      }
-    `
-  })
-  .then(result => console.log(result));
+    .query({
+        query: gql`
+            query getLaunch {
+                Launch(id: 56) {
+                    id
+                    mission {
+                        name
+                    }
+                }
+            }
+        `
+    })
+    .then(result => console.log(result));
 /* 
   {data: {…}, loading: false, networkStatus: 7, stale: false} 
   */
@@ -494,10 +590,10 @@ import { ApolloProvider } from "@apollo/react-hooks";
 import Pages from "./pages";
 
 ReactDOM.render(
-  <ApolloProvider client={client}>
-    <Pages />
-  </ApolloProvider>,
-  document.getElementById("root")
+    <ApolloProvider client={client}>
+        <Pages />
+    </ApolloProvider>,
+    document.getElementById("root")
 );
 ```
 
@@ -540,22 +636,22 @@ when we have to graphql operation that contains the same fields, we can use a **
 ```javascript
 // defining a fragment
 const LAUNCH_TILE_DATA = gql`
-  fragment LaunchTile on Launch {
-    id
-    mission {
-      name
+    fragment LaunchTile on Launch {
+        id
+        mission {
+            name
+        }
     }
-  }
 `;
 
 // using it
 const GET_LAUNCH = gql`
-  query GetLaunch($id: ID!) {
-    launch(id: $id) {
-      ...LaunchTile
+    query GetLaunch($id: ID!) {
+        launch(id: $id) {
+            ...LaunchTile
+        }
     }
-  }
-  ${LAUNCH_TILE_DATA}
+    ${LAUNCH_TILE_DATA}
 `;
 ```
 
@@ -594,48 +690,52 @@ export default function {
 
 ### useState
 
-- avoid reset expensive initialState
+-   avoid reset expensive initialState
 
 ```javascript
 function expensiveInitialState() {
-  return 10;
+    return 10;
 }
 const [state, setState] = useState(() => expensiveInitialState()); // setup initialState by return it from a function will help to set it once and no reset that whenever component reRender
 ```
 
-- avoid overriding update (two update at the same time)
+-   avoid overriding update (two update at the same time)
 
 ```javascript
 const [count, setCount] = useState(0);
 return (
-  <button onClick={() => setCount(currentCount => currentCount + 1)}>
-    Increment
-  </button>
+    <button onClick={() => setCount(currentCount => currentCount + 1)}>
+        Increment
+    </button>
 );
 ```
 
-- why we people care about hooks??! cuz they can write it's custom hooks
+-   why we people care about hooks??! cuz they can write it's custom hooks
 
-````javascript
+```javascript
 // ./src/hooks/useForm.js
 
-import {useState} from 'react'
+import { useState } from "react";
 
-export const useForm  = (initialState) =>{
-  const [values, setValues] = useState(initialState)
+export const useForm = initialState => {
+    const [values, setValues] = useState(initialState);
 
-  const onChange = (event ) => setValues((currentValues) => ({...currentValues, [event.target.name]: [event.target.value]}))
+    const onChange = event =>
+        setValues(currentValues => ({
+            ...currentValues,
+            [event.target.name]: [event.target.value]
+        }));
 
-  return [values, onChange]
-}
+    return [values, onChange];
+};
 
 // ./src/App.jsx
 
-import  { useForm} from './hooks/useForm'
+import { useForm } from "./hooks/useForm";
 
-const [values, handleChange] = useForm({email:""})
+const [values, handleChange] = useForm({ email: "" });
 
-return (<input name="email" value={values.email} onChange={handleChange}/>)
+return <input name="email" value={values.email} onChange={handleChange} />;
 ```
 
 ## Interesting Stuff
@@ -654,4 +754,12 @@ DROP DATABASE already accessing by other users:
 
 > sudo /etc/init.d/postgresql stop
 > sudo /etc/init.d/postgresql start
-````
+
+### dotenv
+
+> yarn add dotenv
+
+```typescript
+import "dotenv/config";
+// release environment variables at .env file at the actual environment
+```
