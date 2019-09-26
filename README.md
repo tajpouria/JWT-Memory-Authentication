@@ -738,6 +738,91 @@ const [values, handleChange] = useForm({ email: "" });
 return <input name="email" value={values.email} onChange={handleChange} />;
 ```
 
+## useEffect
+
+-   clean up function
+
+```javascript
+useEffect(() => {
+    console.log("componentWillMount");
+    return () => {
+        console.log("ComponentWillUnmount"); // returned function from useEffect called cleanup function and it will triggered when ever component unmounted
+    };
+}, []);
+
+// gotcha
+// if call it changing some value like email it will trigger cleanup function whenever the email just changed
+const [email, setEmail] = useState("");
+
+useEffect(() => {
+    console.log("componentWillMount");
+    return () => {
+        console.log("ComponentWillUnmount");
+    };
+}, ["email"]);
+
+<input onChange={e => setEmail(e.target.value)} />;
+```
+
+-   some use cases example :
+
+1. add and remove event listener
+
+```javascript
+useEffect(() => {
+    const onMouseMove = e => console.log(e);
+
+    window.addEventListener("mouseMove", onMouseMove);
+
+    return () => {
+        window.removeEventListener("mouseMove", onMouseMove);
+    };
+}, []);
+```
+
+-   multiple useEffect
+
+```javascript
+useEffect(() => {
+    console.log("mount1");
+});
+useEffect(() => {
+    console.log("mount2");
+});
+// mount1
+// mount2
+```
+
+-   waiting for changes in a custom hook
+
+    ./useFetch.js
+
+```javascript
+export const useFetch = url => {
+    const [state, setState] = useState({ loading: true, data: null });
+
+    useEffect(() => {
+        setState({ loading: true, data: null });
+        fetch(url)
+            .then(res => res.text)
+            .then(res => {
+                setState({ loading: false, data: res });
+            });
+    }, [url]);
+
+    return state;
+};
+```
+
+-   persist state
+
+```javascript
+const [count] = useState(0);
+useEffect(() => {
+    localStorage.setItem("count", JSON.stringify(count));
+}, [count]);
+```
+
 ## Interesting Stuff
 
 ### preferred tsconfig
