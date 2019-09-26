@@ -1,0 +1,12 @@
+html,
+body,
+#root,
+.App {
+    height: 100%;
+}
+
+.App {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -52,7 +52,7 @@ export class User extends BaseEntity {
 
 ```typescript
 export const resolvers = {
-    revokeRefreshTokenForUser: async (_parent,  {userId}) => {
+    revokeRefreshTokenForUser: async (_parent,{userId}) => {
         await getConnection()
             .getRepository(User)
             .increment({ id: userId }, "refreshTokenVersion", 1);
@@ -137,6 +137,27 @@ const isLoggedIn = (parent, args, context) => {
 > yarn add cookieParser
 
 by default cookie is available on req.headers using **app.use(cookieParser())** allow to access parsed cookie at **req.cookies**.
+
+## graphql client
+
+### install dependencies
+
+> yarn add apollo-boost @apollo/react-hooks graphql
+> yarn add -D @types/graphql
+
+### setup client and @apollo/react-hooks
+
+```typescript
+import ApolloServer from "apollo-boost";
+import { ApolloProvider } from "@apollo/react-hooks";
+
+const client = new ApolloServer({ uri: "http://localhost:4000/grqphql" });
+<ApolloProvider client={client}>
+    <App />
+</ApolloProvider>;
+```
+
+### @graphql-codegen/cli
 
 ## Type ORM
 
@@ -869,6 +890,50 @@ const [count] = useState(0);
 useEffect(() => {
     localStorage.setItem("count", JSON.stringify(count));
 }, [count]);
+```
+
+### useRef
+
+-   most obvious use case
+    is getting reference to some element to call different methods on or give value on it
+
+```javascript
+const inputRef = useRef()
+
+    <input ref={inputRef} />
+    <button onClick={() => inputRef.current.focus()}>Focus</button>
+```
+
+-   to reference a value
+
+```javascript
+const renders = useRef(0);
+const [state, setState] = useState(true);
+
+<button onClick={() => setState(st => !st)}>hit</button>;
+<p>Component renders : {renders.current++}</p>;
+```
+
+-   avoiding setState after component unMounted
+
+```javascript
+const isCurrent = useRef(true);
+
+function App() {
+    useEffect(() => {
+        // clean up function : called when the component is going to unMount
+        return () => {
+            isCurrent.current(false);
+        };
+    });
+
+    const settingSomeState = () => {
+        if (isCurrent) {
+            // basically if component did not unMount do setState stuff
+            setState({});
+        }
+    };
+}
 ```
 
 ## Interesting Stuff
