@@ -159,6 +159,45 @@ const client = new ApolloServer({ uri: "http://localhost:4000/grqphql" });
 
 ### @graphql-codegen/cli
 
+> yarn add -D @graphql-codegen/cli
+> npx graphql-codegen init
+
+setup to using hooks
+
+```yml
+overwrite: true
+schema: "http://localhost:4000/graphql"
+documents: "src/graphql/*.graphql"
+generates:
+    src/generated/graphql.tsx:
+        plugins:
+            - "typescript"
+            - "typescript-operations"
+            - "typescript-react-apollo"
+        config:
+            withHOC: false
+            withComponent: false
+            withHooks: true
+```
+
+place queries at ./graphql/\*.graphql
+
+e.g.
+
+```graphql
+query Users {
+    users {
+        id
+        email
+        refreshTokenVersion
+    }
+}
+```
+
+run following command to generate hooks
+
+> yarn run gen
+
 ## Type ORM
 
 provides great features that helps us to develop any kind of application that uses database.
