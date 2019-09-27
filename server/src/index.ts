@@ -4,6 +4,7 @@ import { createConnection } from "typeorm";
 import express, { Request, Response } from "express";
 import { ApolloServer } from "apollo-server-express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 import { typeDefs } from "./schema";
 import { resolvers } from "./resolvers";
@@ -16,6 +17,7 @@ import { setRefreshToken } from "./setRefreshToken";
 (() => {
     const app = express();
 
+    app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
     app.use(cookieParser());
 
     app.post("/refresh_token", async (req: Request, res: Response) => {
@@ -59,7 +61,7 @@ import { setRefreshToken } from "./setRefreshToken";
         typeDefs,
         resolvers
     });
-    apolloServer.applyMiddleware({ app });
+    apolloServer.applyMiddleware({ app, cors: false });
 
     createConnection();
 

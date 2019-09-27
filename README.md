@@ -198,6 +198,56 @@ run following command to generate hooks
 
 > yarn run gen
 
+### CORS POLICY
+
+in cases receive **CORS POLICY** error for set cookie and etc... in graphql client implement following steps:
+
+1. set **{ credential: "include" }** at **client** options:
+
+./index.ts
+
+```typescript
+import ApolloClient from "apollo-boost";
+
+const client = new ApolloClient({
+    uri: "http://localhost:4000/graphql",
+    credentials: "include" // ***
+});
+```
+
+2. install **cors** package at **server**:
+
+    > yarn add cors
+    > yarn add -D @types/cors
+
+3. setup cors middleware at the very bigging of your middleWares and set following options:
+
+```typescript
+import cors from "cors";
+
+app.use(
+    cors({
+        credential: true,
+        origin: "http://localhost:3000" // set origin on what defined in CORS POLICY as error (the actual origin you going to sen request)
+    })
+);
+```
+
+4. set **{ cors : false }** at graphql **applyMiddleware**
+
+```typescript
+import { ApolloServer } from "apollo-server-express";
+
+const apolloServer = new ApolloServer({ typeDefs, resolvers });
+
+apolloServer.applyMiddleware({
+    app,
+    cors: false // ***
+});
+```
+
+5. restart the processes
+
 ## Type ORM
 
 provides great features that helps us to develop any kind of application that uses database.
@@ -766,7 +816,7 @@ const GET_LAUNCH = gql`
 ### update data with mutations
 
 The first value of **userMutation** tuple is the **mutate function** that triggers the
-mutation when it is called.The second value is reslut object that containing **{data, loading, error}**
+mutation when it is called.The second value is result object that containing **{data, loading, error}**
 
 ### useApolloClient
 
