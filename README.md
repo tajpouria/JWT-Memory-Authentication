@@ -262,6 +262,100 @@ const client = new ApolloClient({
 });
 ```
 
+### jwt-decode
+
+> yarn add jwt-decode
+> yarn add -D @types/jwt-decode
+
+```typescript
+import JwtDecode from "jwt-decode";
+
+const token = djskladjl2kj3; //jwt token
+
+const decodedJwt = JwtDecode(token);
+
+console.log(decodeJwt);
+
+/*
+ * { foo: "bar,
+ *   exp: 1393286893, // when jwt expired in milliSecond
+ *   iat: 1393268893  }
+ */
+```
+
+### handle the case access token is expired
+
+-   first if you using _apollo_boost_ needs to migrate from it to access to be able to define a custom link:
+    [https://www.apollographql.com/docs/react/migrating/boost-migration/#advance-migration]
+
+-   install apollo-link-token-refresh
+
+> yarn add apollo-link-token-refresh
+
+-   setup when fetch for refresh_token and how to set it:
+
+```typescript
+import { TokenRefreshLink } from "apollo-link-token-refresh";
+
+const client = new ApolloClient({
+    link: ApolloLink.from([
+        new TokenRefreshLink({
+            accessTokenField: "accessToken", // the actual name of access token field the come from response if return false means invalid it's go ahead and fetch for accessToken
+            isTokenValidOrUndefined: () => {
+                const token = getAccessToken();
+
+                if (!token) {
+                    return true;
+                }
+
+                try {
+                    const { exp } = JwtDecode(token);
+
+                    if (Date.now() >= exp * 1000) { //Data.now : 1569622923241  is in milliSecond format
+                        return false;
+                    } else {
+                        return true;
+                    }
+                } catch {
+                    return false;
+                }
+            },
+            fetchAccessToken: () => {
+                // how to fetch access refresh token
+                return fetch("http://localhost:4000/refresh_token", {
+                    method: "POST",
+                    credentials: "include"
+                });
+            },
+            handleFetch: accessToken => {
+                // what to do with fetched access token
+                setAccessToken(accessToken);
+            },
+            handleError: err => {
+                console.warn("Your refresh token is invalid. Try to relogin");
+                console.error(err);
+            }
+        }),
+
+        // extra link stuffs
+        onError(({ graphQLErrors, networkError }) => {
+            if (graphQLErrors) {
+                console.error(graphQLErrors);
+            }
+            if (networkError) {
+                console.error(networkError);
+            }
+        }),
+        requestLink,
+        new HttpLink({
+            uri: "http://localhost:4000/graphql",
+            credentials: "include"
+        })
+    ]),
+    cache
+});
+```
+
 ## Type ORM
 
 provides great features that helps us to develop any kind of application that uses database.

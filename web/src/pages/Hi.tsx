@@ -2,7 +2,9 @@ import * as React from "react";
 import { useHiQuery } from "../generated/graphql";
 
 export const Hi: React.FC = () => {
-    const { data, loading, error } = useHiQuery();
+    const { data, loading, error } = useHiQuery({
+        fetchPolicy: "network-only"
+    });
 
     if (error) {
         console.error(error);
