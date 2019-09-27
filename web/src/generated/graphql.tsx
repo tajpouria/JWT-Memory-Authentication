@@ -57,6 +57,14 @@ export type User = {
   password?: Maybe<Scalars['String']>,
   refreshTokenVersion?: Maybe<Scalars['Int']>,
 };
+export type HiQueryVariables = {};
+
+
+export type HiQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'hi'>
+);
+
 export type LoginMutationVariables = {
   email: Scalars['String'],
   password: Scalars['String']
@@ -90,6 +98,21 @@ export type UsersQuery = (
   )>> }
 );
 
+export const HiDocument = gql`
+    query Hi {
+  hi
+}
+    `;
+
+    export function useHiQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<HiQuery, HiQueryVariables>) {
+      return ApolloReactHooks.useQuery<HiQuery, HiQueryVariables>(HiDocument, baseOptions);
+    }
+      export function useHiLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<HiQuery, HiQueryVariables>) {
+        return ApolloReactHooks.useLazyQuery<HiQuery, HiQueryVariables>(HiDocument, baseOptions);
+      }
+      
+export type HiQueryHookResult = ReturnType<typeof useHiQuery>;
+export type HiQueryResult = ApolloReactCommon.QueryResult<HiQuery, HiQueryVariables>;
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password)

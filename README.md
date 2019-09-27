@@ -248,6 +248,20 @@ apolloServer.applyMiddleware({
 
 5. restart the processes
 
+### modify request on client
+
+```typescript
+const client = new ApolloClient({
+    uri: "http://localhost:4000",
+    credential: true,
+    request: operation => {
+        operation.setContext({
+            headers: { Authorization: "bearer accessToken" } // .e.g. setup req.headers.authorization
+        });
+    }
+});
+```
+
 ## Type ORM
 
 provides great features that helps us to develop any kind of application that uses database.

@@ -2,19 +2,22 @@ import * as React from "react";
 
 import { useFrom } from "./hooks";
 import { useLoginMutation } from "../generated/graphql";
+import { setAccessToken } from "../accessToken";
 
 export const Login = () => {
     const { values, handleValueChange } = useFrom({ email: "", password: "" });
 
     const [login, { data, loading }] = useLoginMutation();
 
-    const handleSubmit = async (
+    const handleSubmit = (
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
         e.preventDefault();
 
-        await login({
+        login({
             variables: { email: values.email, password: values.password }
+        }).then(res => {
+            res.data && res.data.login && setAccessToken(res.data.login);
         });
     };
     return (
