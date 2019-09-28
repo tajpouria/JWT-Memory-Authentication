@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { useFrom } from "./hooks";
-import { useLoginMutation } from "../generated/graphql";
+import { useLoginMutation, MeQuery, MeDocument } from "../generated/graphql";
 import { setAccessToken } from "../accessToken";
 
 export const Login = () => {
@@ -15,9 +15,23 @@ export const Login = () => {
         e.preventDefault();
 
         login({
-            variables: { email: values.email, password: values.password }
+            variables: { email: values.email, password: values.password },
+
+            update: (store, { data }) => {
+                if (!data || !data.login || !data.login.user) return null;
+
+                store.writeQuery<MeQuery>({
+                    query: MeDocument,
+                    data: {
+                        __typename: "Query",
+                        me: data.login.user
+                    }
+                });
+            }
         }).then(res => {
-            res.data && res.data.login && setAccessToken(res.data.login);
+            res.data &&
+                res.data.login &&
+                setAccessToken(res.data.login.accessToken);
         });
     };
     return (

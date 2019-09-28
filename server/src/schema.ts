@@ -5,6 +5,8 @@ export const typeDefs = gql`
         users: [User]!
 
         hi: String!
+
+        me: User
     }
     type User {
         id: ID
@@ -14,10 +16,17 @@ export const typeDefs = gql`
     }
 
     type Mutation {
-        register(email: String!, password: String!): Boolean
+        register(email: String!, password: String!): Boolean!
 
-        login(email: String!, password: String!): String
+        login(email: String!, password: String!): Login
 
         revokeRefreshTokenForUser(userId: ID!): Boolean
+
+        logout: Boolean
+    }
+
+    type Login {
+        accessToken: String!
+        user: User
     }
 `;

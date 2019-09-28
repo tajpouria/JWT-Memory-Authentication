@@ -90,6 +90,8 @@ export const resolvers = {
                 { httpOnly: true } // javascript cannot not access it anymore
             );
 
+            // to clear the actual cookie you can use  res.clearCookie('jid')
+
             // return access Token
             return sign({ userId: user.id }, "ATSecret", { expiresIn: "15m" });
         }
@@ -311,7 +313,8 @@ const client = new ApolloClient({
                 try {
                     const { exp } = JwtDecode(token);
 
-                    if (Date.now() >= exp * 1000) { //Data.now : 1569622923241  is in milliSecond format
+                    if (Date.now() >= exp * 1000) {
+                        //Data.now : 1569622923241  is in milliSecond format
                         return false;
                     } else {
                         return true;
@@ -354,6 +357,45 @@ const client = new ApolloClient({
     ]),
     cache
 });
+```
+
+### update the apollo cache after Mutation
+
+```typescript
+const [login] = userLoginMutation();
+
+login({
+    args: { email, password },
+
+    update: (store, { data }) => {
+        // update function is triggered whenever the mutation completed
+        if ((!data, !data.user)) return null;
+
+        store.writeQuery<MyDataType>({
+            query: UserDocument,
+            data: {
+                __typeName = "Query", //optional
+                me: data.user
+            }
+        });
+    }
+});
+```
+
+### logout the user on the client
+
+```typescript
+const [logout, { client }] = useLogoutMutation(); // here you accessing apolloClient
+
+const handleLogout = async () => {
+    await logout();
+
+    // it is always best practice to reset apollo cache after user logout
+
+    client!.resetStore();
+};
+
+<button onClick={handleLogout}> Logout </button>;
 ```
 
 ## Type ORM
@@ -1131,6 +1173,24 @@ function App() {
         }
     };
 }
+```
+
+### useLayoutEffect
+
+**useLayout** is helpful in case you want measure a box dimensions and ... after render occur, or any kind of work related to getting information about DOM.
+
+react recommend starting with useEffect first and only trying useLayoutEffect if that causes a problem.
+
+-   getBoundingClientRect (get dimension of an element)
+
+```javascript
+const inputRef = UseRef()
+
+useLayoutEffect(() => {
+    console.log(inputRef.current.getBoundingClientRect())
+}, [])
+
+<input ref={inputRef}/>
 ```
 
 ## Interesting Stuff

@@ -1,0 +1,4 @@
+mutation Logout {
+    logout
+}
+`
