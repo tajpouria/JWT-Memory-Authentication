@@ -87,7 +87,10 @@ export const resolvers = {
             res.cookie(
                 "jit",
                 sign({ userId: user.id }, "RTSecret", { expiresIn: "7d" }),
-                { httpOnly: true } // javascript cannot not access it anymore
+                {
+                    httpOnly: true, // javascript cannot not access it anymore
+                    path: "/refresh_token" // cookie is available on req.headers that specifie to this endpoint this is best practice not to send cookie for every req
+                }
             );
 
             // to clear the actual cookie you can use  res.clearCookie('jid')
@@ -1191,6 +1194,45 @@ useLayoutEffect(() => {
 }, [])
 
 <input ref={inputRef}/>
+```
+
+### useCallBack
+
+it good to prevent from creating a function on every single render,
+
+-   prevent reRender child component whenever using memo
+
+```jsx
+const Hello = React.memo((
+    { increment } // *** React.memo check the is a kind of HOC and it will check the wrapped component props and if it changed it will reRender the component
+) => <button onClick={() => increment(5)}>increment</button>);
+
+const App = () => {
+    useState[(count, setCount)] = useState(0);
+
+    const increment = useCallback((n) => { // *** useCallback reCreate function whenever; dependencies changed
+        setCount(c => c +n)
+    }, [setCount])
+
+    return (
+        <div>
+            <div>{count}</div>
+            <Hello increment={increment}>
+        </div>
+    );
+};
+```
+
+-   fire useEffect just when the function change
+
+```jsx
+const App = () => {
+    const increment = useCallback(() => {}, [setCount]);
+
+    useEffect(() => {}, [increment]); // useEffect will trigger whenever increment function changed
+
+    return <div onClick={increment} />;
+};
 ```
 
 ## Interesting Stuff
