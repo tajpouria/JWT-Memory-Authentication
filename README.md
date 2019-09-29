@@ -1319,3 +1319,87 @@ DROP DATABASE already accessing by other users:
 import "dotenv/config";
 // release environment variables at .env file at the actual environment
 ```
+
+### shallow comparison
+
+```javascript
+const a = [1, 2, 3];
+const b = [1, 2, 3];
+const c = a;
+
+// false cuz they not referencing to the same place at the memory
+a === b;
+
+a === c; // true
+
+// same in objects
+```
+
+### React.pureComponent
+
+terminology:
+
+-   We can create a pureComponent by extending the PureComponent on React
+-   **A PureComponent implements the _shouldComponentUpdate_ method by performing a _shallow comparison_ on the _props_ and _state_ of the component**
+-   if there is not difference, the component will not re-render - performing boost.
+
+caveats:
+
+-   it is best practice to ensure that all the children components are also pure component to avoid unexpected behavior.
+-   never **mutate** the state, Always return a **new object** that reflects the state.
+
+```javascript
+class Regular extends Component {
+    render() {
+        console.log("REGULAR");
+        return <p>{this.props.children}</p>;
+    }
+}
+
+class Regular extends PureComponent {
+    render() {
+        console.log("PURE");
+        return <p>{this.props.children}</p>;
+    }
+}
+
+class App extends Component {
+    state = { name: "Geo" };
+
+    render() {
+        console.log("APP");
+        const { name } = this.state;
+        return (
+            <div className="App">
+                <button onClick={this.handleClick}>addRandom</button>
+                <Regular>{name}</Regular>
+                <Pure>{name}</Pure>
+            </div>
+        );
+    }
+
+    handleClick = () => {
+        this.setState(st => ({ name: "Geo" }));
+    };
+}
+```
+
+In mentioned example cuz shallow rendering happened on _PureComponent_ we receive following result on each re-render:
+
+````shell
+APP
+REGULAR
+PURE # pure just render once
+APP
+REGULAR
+APP
+REGULAR
+APP
+REGULAR
+APP
+REGULAR
+.
+.
+.
+​```
+````
