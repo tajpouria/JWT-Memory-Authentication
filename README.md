@@ -1235,6 +1235,65 @@ const App = () => {
 };
 ```
 
+### useMemo
+
+Pass a “create” function and an array of dependencies. useMemo will only recompute the memoized value when one of the dependencies has changed
+
+```jsx
+// Without useMemo the function will reCalculate const on every render
+const calculateSomeValue = depend => {
+    // calculating some value
+};
+
+// With useMemo it will trigger calculating some just when dependency/dependencies changed
+
+useMemo(
+    depend => {
+        // calculating some value
+    },
+    [depend]
+);
+
+const App = () => {
+    return (
+        <div>
+            <button onClick={() => setSate(state + 12)}>Hello</button>
+            <div>{calculateSomeValue(depend)}</div>
+        </div>
+    );
+};
+```
+
+-   example 2
+
+```jsx
+function App() {
+    const data = useFetch("https://jsonplaceholder.typicode.com/todos");
+    const [count, setCount] = useState(0);
+
+    const calculateLongestWord = arr => {
+        let longestWord = " ";
+        console.log("calculating longest word");
+        Array.isArray(arr) &&
+            arr.forEach(todo =>
+                todo.title.split(" ").forEach(word => {
+                    if (word.length > longestWord.length) longestWord = word;
+                })
+            );
+        return longestWord;
+    };
+
+    const longestWord = useMemo(() => calculateLongestWord(data), [data]);
+
+    return (
+        <div className="App">
+            <button onClick={() => setCount(count + 1)}>Calculate</button>
+            <div>{longestWord}</div>
+        </div>
+    );
+}
+```
+
 ## Interesting Stuff
 
 ### preferred tsconfig
