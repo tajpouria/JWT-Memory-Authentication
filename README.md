@@ -1294,6 +1294,49 @@ function App() {
 }
 ```
 
+### userReducer
+
+-   basic of useReducer
+
+```javascript
+const types = { INCREMENT: "INCREMENT", DECREMENT: "DECREMENT" };
+
+const reducer = (state, action) => {
+    switch (action.type) {
+        case types.INCREMENT:
+            return state + 1;
+        case types.DECREMENT:
+            return state - 1;
+        default:
+            return state;
+    }
+};
+
+function App() {
+    const [count, dispatch] = userReducer(reducer, 0);
+
+    return (
+        <div className="App">
+            <button
+                onClick={() => {
+                    dispatch({ type: types.INCREMENT });
+                }}
+            >
+                Increment
+            </button>
+            <button
+                onClick={() => {
+                    dispatch({ type: types.DECREMENT });
+                }}
+            >
+                Decrement
+            </button>
+            <h4>Count : {count}</h4>
+        </div>
+    );
+}
+```
+
 ## Interesting Stuff
 
 ### preferred tsconfig
