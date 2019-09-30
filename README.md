@@ -88,7 +88,7 @@ export const resolvers = {
                 "jit",
                 sign({ userId: user.id }, "RTSecret", { expiresIn: "7d" }),
                 {
-                    httpOnly: true, // javascript cannot not access it anymore
+                    httpOnly: true, // javascript can access the cookie
                     path: "/refresh_token" // cookie is available on req.headers that specifie to this endpoint this is best practice not to send cookie for every req
                 }
             );
