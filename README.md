@@ -1337,6 +1337,69 @@ function App() {
 }
 ```
 
+### useContext
+
+```jsx
+import { createContext } from "react";
+const UserContext = createContext(null);
+
+export default async () => {
+    return { id: 4, name: "bob", email: "bob@bob.com" };
+};
+
+function Home() {
+    const { user, setUser } = useContext(UserContext);
+
+    const handleLogin = useCallback(async () => {
+        const user = await login();
+        setUser(user);
+    }, [setUser]);
+
+    const handleLogout = useCallback(async () => {
+        setUser(null);
+    }, [setUser]);
+
+    return (
+        <div>
+            Home
+            <pre>{JSON.stringify(user, null, 2)}</pre>
+            {!user ? (
+                <button onClick={handleLogin}>login</button>
+            ) : (
+                <button onClick={handleLogout}>Logout</button>
+            )}
+        </div>
+    );
+}
+
+function About() {
+    const { user } = useContext(UserContext);
+    return (
+        <div>
+            Home
+            <pre>{JSON.stringify(user, null, 2)}</pre>
+        </div>
+    );
+}
+
+function App() {
+    const [user, setUser] = useState(null);
+
+    return (
+        <Router>
+            <Link to="/">Home</Link>
+            <Link to="/about">About</Link>
+            <Switch>
+                <UserContext.Provider value={{ user, setUser }}>
+                    <Route exact path="/" component={Home} />
+                    <Route path="/about" component={About} />
+                </UserContext.Provider>
+            </Switch>
+        </Router>
+    );
+}
+```
+
 ## Interesting Stuff
 
 ### preferred tsconfig
