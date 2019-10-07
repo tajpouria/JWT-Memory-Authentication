@@ -88,7 +88,7 @@ export const resolvers = {
                 "jit",
                 sign({ userId: user.id }, "RTSecret", { expiresIn: "7d" }),
                 {
-                    httpOnly: true, // javascript cannot not access it anymore
+                    httpOnly: true, // javascript can access the cookie
                     path: "/refresh_token" // cookie is available on req.headers that specifie to this endpoint this is best practice not to send cookie for every req
                 }
             );
@@ -362,7 +362,8 @@ const client = new ApolloClient({
 });
 ```
 
-### update the apollo cache after Mutation
+### 
+the apollo cache after Mutation
 
 ```typescript
 const [login] = userLoginMutation();
@@ -372,9 +373,9 @@ login({
 
     update: (store, { data }) => {
         // update function is triggered whenever the mutation completed
-        if ((!data, !data.user)) return null;
+        if (!data || !data.user) return null;
 
-        store.writeQuery<MyDataType>({
+        store.writeQuery<MeQuery>({
             query: UserDocument,
             data: {
                 __typeName = "Query", //optional
