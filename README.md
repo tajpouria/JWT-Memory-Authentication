@@ -362,7 +362,8 @@ const client = new ApolloClient({
 });
 ```
 
-### update the apollo cache after Mutation
+### 
+the apollo cache after Mutation
 
 ```typescript
 const [login] = userLoginMutation();
@@ -372,9 +373,9 @@ login({
 
     update: (store, { data }) => {
         // update function is triggered whenever the mutation completed
-        if ((!data, !data.user)) return null;
+        if (!data || !data.user) return null;
 
-        store.writeQuery<MyDataType>({
+        store.writeQuery<MeQuery>({
             query: UserDocument,
             data: {
                 __typeName = "Query", //optional
