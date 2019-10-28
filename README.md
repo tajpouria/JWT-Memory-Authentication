@@ -11,18 +11,18 @@
 
 ```typescript
 (() => {
-    const app = express();
+  const app = express();
 
-    const apolloServer = new ApolloServer({
-        context: ({ req, res }) => ({ req, res }),
-        typeDefs,
-        resolvers
-    });
-    apolloServer.applyMiddleware({ app });
+  const apolloServer = new ApolloServer({
+    context: ({ req, res }) => ({ req, res }),
+    typeDefs,
+    resolvers
+  });
+  apolloServer.applyMiddleware({ app });
 
-    createConnection();
+  createConnection();
 
-    app.listen(4000, () => console.info(`Listening on port 4000`));
+  app.listen(4000, () => console.info(`Listening on port 4000`));
 })();
 ```
 
@@ -43,8 +43,8 @@ there is a several ways to revoke user refresh token but in this case we follow 
 ```typescript
 @Entity("User")
 export class User extends BaseEntity {
-    @Column("int", { default: 0 })
-    refreshTokenVersion: number;
+  @Column("int", { default: 0 })
+  refreshTokenVersion: number;
 }
 ```
 
@@ -78,27 +78,27 @@ export const resolvers = {
 ```typescript
 import { sign } from "jsonwebToken";
 export const resolvers = {
-    resolvers: {
-        login: async (_parent: any, { email, password }: any, { res }) => {
-            const user = await User.findOne({ where: { email } });
+  resolvers: {
+    login: async (_parent: any, { email, password }: any, { res }) => {
+      const user = await User.findOne({ where: { email } });
 
-            // set refresh token in cookie
+      // set refresh token in cookie
 
-            res.cookie(
-                "jit",
-                sign({ userId: user.id }, "RTSecret", { expiresIn: "7d" }),
-                {
-                    httpOnly: true, // javascript can access the cookie
-                    path: "/refresh_token" // cookie is available on req.headers that specifie to this endpoint this is best practice not to send cookie for every req
-                }
-            );
-
-            // to clear the actual cookie you can use  res.clearCookie('jid')
-
-            // return access Token
-            return sign({ userId: user.id }, "ATSecret", { expiresIn: "15m" });
+      res.cookie(
+        "jit",
+        sign({ userId: user.id }, "RTSecret", { expiresIn: "7d" }),
+        {
+          httpOnly: true, // javascript can access the cookie
+          path: "/refresh_token" // cookie is available on req.headers that specifie to this endpoint this is best practice not to send cookie for every req
         }
+      );
+
+      // to clear the actual cookie you can use  res.clearCookie('jid')
+
+      // return access Token
+      return sign({ userId: user.id }, "ATSecret", { expiresIn: "15m" });
     }
+  }
 };
 ```
 
@@ -111,12 +111,12 @@ export const resolvers = {
 import { skip, combineResolvers } from "graphql-resolvers";
 
 const logger = (parent, args, context) => {
-    console.log(context);
-    skip;
+  console.log(context);
+  skip;
 };
 
 export const resolvers = {
-    hi: combineResolvers(logger, () => "hi")
+  hi: combineResolvers(logger, () => "hi")
 };
 ```
 
@@ -126,13 +126,13 @@ export const resolvers = {
 import { verify } from "jsonwebtoken";
 
 const isLoggedIn = (parent, args, context) => {
-    const token = context.req.headers.Authorization.split(
-        " "
-    )[1]; /* cuz we send {"Authorization": "bearer eyJhbGciOiJIUzI1NiIs"} */
+  const token = context.req.headers.Authorization.split(
+    " "
+  )[1]; /* cuz we send {"Authorization": "bearer eyJhbGciOiJIUzI1NiIs"} */
 
-    const payload = verify(token, "secret");
+  const payload = verify(token, "secret");
 
-    context.payload = { userId: payload.userId };
+  context.payload = { userId: payload.userId };
 };
 ```
 
@@ -158,7 +158,7 @@ import { ApolloProvider } from "@apollo/react-hooks";
 
 const client = new ApolloServer({ uri: "http://localhost:4000/grqphql" });
 <ApolloProvider client={client}>
-    <App />
+  <App />
 </ApolloProvider>;
 ```
 
@@ -174,15 +174,15 @@ overwrite: true
 schema: "http://localhost:4000/graphql"
 documents: "src/graphql/*.graphql"
 generates:
-    src/generated/graphql.tsx:
-        plugins:
-            - "typescript"
-            - "typescript-operations"
-            - "typescript-react-apollo"
-        config:
-            withHOC: false
-            withComponent: false
-            withHooks: true
+  src/generated/graphql.tsx:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
+    config:
+      withHOC: false
+      withComponent: false
+      withHooks: true
 ```
 
 place queries at ./graphql/\*.graphql
@@ -191,11 +191,11 @@ e.g.
 
 ```graphql
 query Users {
-    users {
-        id
-        email
-        refreshTokenVersion
-    }
+  users {
+    id
+    email
+    refreshTokenVersion
+  }
 }
 ```
 
@@ -215,15 +215,15 @@ in cases receive **CORS POLICY** error for set cookie and etc... in graphql clie
 import ApolloClient from "apollo-boost";
 
 const client = new ApolloClient({
-    uri: "http://localhost:4000/graphql",
-    credentials: "include" // ***
+  uri: "http://localhost:4000/graphql",
+  credentials: "include" // ***
 });
 ```
 
 2. install **cors** package at **server**:
 
-    > yarn add cors
-    > yarn add -D @types/cors
+   > yarn add cors
+   > yarn add -D @types/cors
 
 3. setup cors middleware at the very bigging of your middleWares and set following options:
 
@@ -231,10 +231,10 @@ const client = new ApolloClient({
 import cors from "cors";
 
 app.use(
-    cors({
-        credential: true,
-        origin: "http://localhost:3000" // set origin on what defined in CORS POLICY as error (the actual origin you going to sen request)
-    })
+  cors({
+    credential: true,
+    origin: "http://localhost:3000" // set origin on what defined in CORS POLICY as error (the actual origin you going to sen request)
+  })
 );
 ```
 
@@ -246,8 +246,8 @@ import { ApolloServer } from "apollo-server-express";
 const apolloServer = new ApolloServer({ typeDefs, resolvers });
 
 apolloServer.applyMiddleware({
-    app,
-    cors: false // ***
+  app,
+  cors: false // ***
 });
 ```
 
@@ -257,13 +257,13 @@ apolloServer.applyMiddleware({
 
 ```typescript
 const client = new ApolloClient({
-    uri: "http://localhost:4000",
-    credential: true,
-    request: operation => {
-        operation.setContext({
-            headers: { Authorization: "bearer accessToken" } // .e.g. setup req.headers.authorization
-        });
-    }
+  uri: "http://localhost:4000",
+  credential: true,
+  request: operation => {
+    operation.setContext({
+      headers: { Authorization: "bearer accessToken" } // .e.g. setup req.headers.authorization
+    });
+  }
 });
 ```
 
@@ -290,99 +290,100 @@ console.log(decodeJwt);
 
 ### handle the case access token is expired
 
--   first if you using _apollo_boost_ needs to migrate from it to access to be able to define a custom link:
-    [https://www.apollographql.com/docs/react/migrating/boost-migration/#advance-migration]
+- first if you using _apollo_boost_ needs to migrate from it to access to be able to define a custom link:
+  [https://www.apollographql.com/docs/react/migrating/boost-migration/#advance-migration]
 
--   install apollo-link-token-refresh
+- install apollo-link-token-refresh
 
 > yarn add apollo-link-token-refresh
 
--   setup when fetch for refresh_token and how to set it:
+- setup when fetch for refresh_token and how to set it:
 
 ```typescript
 import { TokenRefreshLink } from "apollo-link-token-refresh";
 
 const client = new ApolloClient({
-    link: ApolloLink.from([
-        new TokenRefreshLink({
-            accessTokenField: "accessToken", // the actual name of access token field the come from response if return false means invalid it's go ahead and fetch for accessToken
-            isTokenValidOrUndefined: () => {
-                const token = getAccessToken();
+  link: ApolloLink.from([
+    new TokenRefreshLink({
+      accessTokenField: "accessToken", // the actual name of access token field the come from response if return false means invalid it's go ahead and fetch for accessToken
+      isTokenValidOrUndefined: () => {
+        const token = getAccessToken();
 
-                if (!token) {
-                    return true;
-                }
+        if (!token) {
+          return true;
+        }
 
-                try {
-                    const { exp } = JwtDecode(token);
+        try {
+          const { exp } = JwtDecode(token);
 
-                    if (Date.now() >= exp * 1000) {
-                        //Data.now : 1569622923241  is in milliSecond format
-                        return false;
-                    } else {
-                        return true;
-                    }
-                } catch {
-                    return false;
-                }
-            },
-            fetchAccessToken: () => {
-                // how to fetch access refresh token
-                return fetch("http://localhost:4000/refresh_token", {
-                    method: "POST",
-                    credentials: "include"
-                });
-            },
-            handleFetch: accessToken => {
-                // what to do with fetched access token
-                setAccessToken(accessToken);
-            },
-            handleError: err => {
-                console.warn("Your refresh token is invalid. Try to relogin");
-                console.error(err);
-            }
-        }),
+          if (Date.now() >= exp * 1000) {
+            //Data.now : 1569622923241  is in milliSecond format
+            return false;
+          } else {
+            return true;
+          }
+        } catch {
+          return false;
+        }
+      },
+      fetchAccessToken: () => {
+        // how to fetch access refresh token
+        return fetch("http://localhost:4000/refresh_token", {
+          method: "POST",
+          credentials: "include"
+        });
+      },
+      handleFetch: accessToken => {
+        // what to do with fetched access token
+        setAccessToken(accessToken);
+      },
+      handleError: err => {
+        console.warn("Your refresh token is invalid. Try to relogin");
+        console.error(err);
+      }
+    }),
 
-        // extra link stuffs
-        onError(({ graphQLErrors, networkError }) => {
-            if (graphQLErrors) {
-                console.error(graphQLErrors);
-            }
-            if (networkError) {
-                console.error(networkError);
-            }
-        }),
-        requestLink,
-        new HttpLink({
-            uri: "http://localhost:4000/graphql",
-            credentials: "include"
-        })
-    ]),
-    cache
+    // extra link stuffs
+    onError(({ graphQLErrors, networkError }) => {
+      if (graphQLErrors) {
+        console.error(graphQLErrors);
+      }
+      if (networkError) {
+        console.error(networkError);
+      }
+    }),
+    requestLink,
+    new HttpLink({
+      uri: "http://localhost:4000/graphql",
+      credentials: "include"
+    })
+  ]),
+  cache
 });
 ```
 
-### 
+###
+
 the apollo cache after Mutation
 
 ```typescript
 const [login] = userLoginMutation();
 
 login({
-    args: { email, password },
+  args: { email, password },
 
-    update: (store, { data }) => {
-        // update function is triggered whenever the mutation completed
-        if (!data || !data.user) return null;
+  update: (store, { data }) => {
+    // update function is triggered whenever the mutation completed
+    if (!data || !data.user) return null;
 
-        store.writeQuery<MeQuery>({
-            query: UserDocument,
-            data: {
-                __typeName = "Query", //optional
-                me: data.user
-            }
-        });
-    }
+    store.writeQuery<MeQuery>({
+      query: UserDocument,
+      data: {
+        __typeName = "Query", //optional
+        me: data.user
+      }
+    });
+  }
 });
 ```
 
@@ -392,11 +393,11 @@ login({
 const [logout, { client }] = useLogoutMutation(); // here you accessing apolloClient
 
 const handleLogout = async () => {
-    await logout();
+  await logout();
 
-    // it is always best practice to reset apollo cache after user logout
+  // it is always best practice to reset apollo cache after user logout
 
-    client!.resetStore();
+  client!.resetStore();
 };
 
 <button onClick={handleLogout}> Logout </button>;
@@ -416,22 +417,22 @@ ormconfig.json
 
 ```json
 {
-    "type": "postgres",
-    "host": "localhost",
-    "username": "postgres",
-    "password": "postgres",
-    "port": 5432,
-    "database": "jwt-memory-auth",
-    "synchronize": true,
-    "logging": false,
-    "entities": ["src/entity/**/*.ts"],
-    "migrations": ["src/migration/**/*.ts"],
-    "subscribers": ["src/subscriber/**/*.ts"],
-    "cli": {
-        "entitiesDir": "src/entity",
-        "migrationsDir": "src/migration",
-        "subscribersDir": "src/subscriber"
-    }
+  "type": "postgres",
+  "host": "localhost",
+  "username": "postgres",
+  "password": "postgres",
+  "port": 5432,
+  "database": "jwt-memory-auth",
+  "synchronize": true,
+  "logging": false,
+  "entities": ["src/entity/**/*.ts"],
+  "migrations": ["src/migration/**/*.ts"],
+  "subscribers": ["src/subscriber/**/*.ts"],
+  "cli": {
+    "entitiesDir": "src/entity",
+    "migrationsDir": "src/migration",
+    "subscribersDir": "src/subscriber"
+  }
 }
 ```
 
@@ -446,20 +447,20 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity("tableName")
 export class User {
-    @PrimaryGeneratedColumn
-    id: number;
+  @PrimaryGeneratedColumn
+  id: number;
 
-    @Column({ type: "varchar", length: 50 })
-    firstName: string;
+  @Column({ type: "varchar", length: 50 })
+  firstName: string;
 
-    @Column({ type: "varchar", length: 50 })
-    lastName: string;
+  @Column({ type: "varchar", length: 50 })
+  lastName: string;
 
-    @Column({ type: "bool", default: false })
-    confirmed: boolean;
+  @Column({ type: "bool", default: false })
+  confirmed: boolean;
 
-    @Column("int")
-    age: number;
+  @Column("int")
+  age: number;
 }
 ```
 
@@ -471,18 +472,18 @@ import { createConnection } from "typeorm";
 import { User } from "./entity/User";
 
 createConnection()
-    .then(async connection => {
-        const user = new User();
-        user.firstName = "John";
-        user.lastName = "Deo";
-        user.age = 40;
-        user.email = "hello@gmail.com";
+  .then(async connection => {
+    const user = new User();
+    user.firstName = "John";
+    user.lastName = "Deo";
+    user.age = 40;
+    user.email = "hello@gmail.com";
 
-        await connection.manager.save(user);
+    await connection.manager.save(user);
 
-        const users = await connection.manager.find(User);
-    })
-    .catch(err => console.err(err));
+    const users = await connection.manager.find(User);
+  })
+  .catch(err => console.err(err));
 ```
 
 CRUD in typeorm
@@ -533,30 +534,30 @@ export class User extends BaseEntity {} // extending BaseEntity make available u
 
 ```typescript
 import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    OneToOne,
-    JoinColumn
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  JoinColumn
 } from "typeorm";
 
 @Entity()
 export class Profile {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    favoriteColor: string;
+  @Column()
+  favoriteColor: string;
 }
 
 @Entity()
 export class User extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @OneToOne(type => Profile) // target table
-    @JoinColumn() // must be set only on one side of relation the side that must have foreign key
-    profile: Profile;
+  @OneToOne(type => Profile) // target table
+  @JoinColumn() // must be set only on one side of relation the side that must have foreign key
+  profile: Profile;
 }
 ```
 
@@ -584,8 +585,8 @@ Foreign-key constraints:
 ```typescript
 const profile = await Profile.create(raq.body.profile).save();
 const user = await User.create({
-    firstName: req.body.firstName,
-    profile: profile
+  firstName: req.body.firstName,
+  profile: profile
 }).save();
 ```
 
@@ -603,23 +604,23 @@ const user = User.findByIds(id, { relations: ["profile"] });
 ```typescript
 @Entity()
 export class User extends BaseClass {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @OneToMany(type => User, photo => photo.user)
-    photos: Photo[];
+  @OneToMany(type => User, photo => photo.user)
+  photos: Photo[];
 }
 
 @Entity()
 export class Photo extends BaseClass {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    url: string;
+  @Column()
+  url: string;
 
-    @ManyToOne(type => User, user => user.photos)
-    user: User;
+  @ManyToOne(type => User, user => user.photos)
+  user: User;
 }
 
 // create relations
@@ -634,43 +635,43 @@ const user = await new User({ ...userInfo, photos: [photo1, photo2] }).save();
 ```typescript
 Entity();
 export class Author extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @OneToMany(() => AuthorBook, ab => ab.author)
-    bookConnection: Author;
+  @OneToMany(() => AuthorBook, ab => ab.author)
+  bookConnection: Author;
 }
 
 Entity();
 export class Book extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @OneToMany(() => AuthorBook, ab => ab.Book)
-    authorConnection: Book;
+  @OneToMany(() => AuthorBook, ab => ab.Book)
+  authorConnection: Book;
 }
 
 Entity();
 export class AuthorBook extends BaseEntity {
-    @PrimaryColumn()
-    authorId: number;
+  @PrimaryColumn()
+  authorId: number;
 
-    @PrimaryColumn()
-    bookId: number;
+  @PrimaryColumn()
+  bookId: number;
 
-    @ManyToOne(() => Author, author => author.bookConnection, { primary: true })
-    @JoinColumn({ name: "bookId" })
-    author: Author;
+  @ManyToOne(() => Author, author => author.bookConnection, { primary: true })
+  @JoinColumn({ name: "bookId" })
+  author: Author;
 
-    @ManyToOne(() => Book, book => book.authorConnection, { primary: true })
-    @JoinColumn({ name: "bookid" })
-    book: Book;
+  @ManyToOne(() => Book, book => book.authorConnection, { primary: true })
+  @JoinColumn({ name: "bookid" })
+  book: Book;
 }
 ```
 
@@ -682,8 +683,8 @@ export class AuthorBook extends BaseEntity {
 
 Application that run apollo server needs require two top-level dependencies:
 
--   apollo-server : is the core library to define the shape of data and how fetch it.
--   graphql : the library used to build a graphql schema and run the queries.
+- apollo-server : is the core library to define the shape of data and how fetch it.
+- graphql : the library used to build a graphql schema and run the queries.
 
 ### build a schema
 
@@ -737,15 +738,15 @@ this package exposes **RESTDataSource** class that is responsible for fetching d
 const { RESTDataSource } = require("apollo-datasource-rest");
 
 class LaunchAPI extends RESTDataSource {
-    constructor() {
-        this.baseURL = "https://api.spacexdata.com/v2/";
-    }
+  constructor() {
+    this.baseURL = "https://api.spacexdata.com/v2/";
+  }
 
-    async getLaunchById(launchId) {
-        const response = await this.get("launches", {
-            flight_number: launchId
-        }); // https://api.spacexdata.com/v2/launches?flight_number=launchId
-    }
+  async getLaunchById(launchId) {
+    const response = await this.get("launches", {
+      flight_number: launchId
+    }); // https://api.spacexdata.com/v2/launches?flight_number=launchId
+  }
 }
 
 module.exports = LaunchAPI;
@@ -812,23 +813,23 @@ const resolvers = require("./resolvers");
 const { LaunchAPI } = require("./datasources/launch.js");
 
 const server = new ApolloServer({
-    context: async ({ req, res }) => {
-        /* to access the res.cookie you can also return res from here return ({req, res}) */
+  context: async ({ req, res }) => {
+    /* to access the res.cookie you can also return res from here return ({req, res}) */
 
-        const auth = req.headers && req.headers.authorization;
-        return auth
-            ? { authorization: req.headers.authorization }
-            : { authorization: "not authorized" };
-    },
-    typDefs,
-    resolver,
-    dataSources: () => ({
-        launchAPI: new LaunchAPI()
-    })
+    const auth = req.headers && req.headers.authorization;
+    return auth
+      ? { authorization: req.headers.authorization }
+      : { authorization: "not authorized" };
+  },
+  typDefs,
+  resolver,
+  dataSources: () => ({
+    launchAPI: new LaunchAPI()
+  })
 });
 
 server.listen().then(({ url }) => {
-    console.log(`Server is Running on ${url}`);
+  console.log(`Server is Running on ${url}`);
 });
 ```
 
@@ -836,17 +837,17 @@ server.listen().then(({ url }) => {
 
 ### install dependencies
 
--   apollo-client : a complete data management solution with an intelligent cache
+- apollo-client : a complete data management solution with an intelligent cache
 
--   react-apollo : the view layer integrated for React to export components such as **Query** and **Mutation**
+- react-apollo : the view layer integrated for React to export components such as **Query** and **Mutation**
 
--   graphql-tag : the tag function **gql** to wrap our query strings in order to parse them into AST
+- graphql-tag : the tag function **gql** to wrap our query strings in order to parse them into AST
 
--   @apollo-react-hooks
+- @apollo-react-hooks
 
--   apollo-cache-inmemory
+- apollo-cache-inmemory
 
--   apollo-link-http
+- apollo-link-http
 
 ### create ApolloClient
 
@@ -859,10 +860,10 @@ import { HttpLink } from "apollo-link-http";
 
 const cache = new InMemoryCache();
 const link = new HttpLink({
-    uri: "http://localhost:4000",
-    headers: {
-        authorization: localStorage.getItem("token")
-    }
+  uri: "http://localhost:4000",
+  headers: {
+    authorization: localStorage.getItem("token")
+  }
 });
 
 const client = new ApolloClient({ cache, link });
@@ -874,19 +875,19 @@ const client = new ApolloClient({ cache, link });
 import gql from "graphql-tag";
 
 client
-    .query({
-        query: gql`
-            query getLaunch {
-                Launch(id: 56) {
-                    id
-                    mission {
-                        name
-                    }
-                }
-            }
-        `
-    })
-    .then(result => console.log(result));
+  .query({
+    query: gql`
+      query getLaunch {
+        Launch(id: 56) {
+          id
+          mission {
+            name
+          }
+        }
+      }
+    `
+  })
+  .then(result => console.log(result));
 /* 
   {data: {…}, loading: false, networkStatus: 7, stale: false} 
   */
@@ -902,10 +903,10 @@ import { ApolloProvider } from "@apollo/react-hooks";
 import Pages from "./pages";
 
 ReactDOM.render(
-    <ApolloProvider client={client}>
-        <Pages />
-    </ApolloProvider>,
-    document.getElementById("root")
+  <ApolloProvider client={client}>
+    <Pages />
+  </ApolloProvider>,
+  document.getElementById("root")
 );
 ```
 
@@ -948,22 +949,22 @@ when we have to graphql operation that contains the same fields, we can use a **
 ```javascript
 // defining a fragment
 const LAUNCH_TILE_DATA = gql`
-    fragment LaunchTile on Launch {
-        id
-        mission {
-            name
-        }
+  fragment LaunchTile on Launch {
+    id
+    mission {
+      name
     }
+  }
 `;
 
 // using it
 const GET_LAUNCH = gql`
-    query GetLaunch($id: ID!) {
-        launch(id: $id) {
-            ...LaunchTile
-        }
+  query GetLaunch($id: ID!) {
+    launch(id: $id) {
+      ...LaunchTile
     }
-    ${LAUNCH_TILE_DATA}
+  }
+  ${LAUNCH_TILE_DATA}
 `;
 ```
 
@@ -1002,27 +1003,27 @@ export default function {
 
 ### useState
 
--   avoid reset expensive initialState
+- avoid reset expensive initialState
 
 ```javascript
 function expensiveInitialState() {
-    return 10;
+  return 10;
 }
 const [state, setState] = useState(() => expensiveInitialState()); // setup initialState by return it from a function will help to set it once and no reset that whenever component reRender
 ```
 
--   avoid overriding update (two update at the same time)
+- avoid overriding update (two update at the same time)
 
 ```javascript
 const [count, setCount] = useState(0);
 return (
-    <button onClick={() => setCount(currentCount => currentCount + 1)}>
-        Increment
-    </button>
+  <button onClick={() => setCount(currentCount => currentCount + 1)}>
+    Increment
+  </button>
 );
 ```
 
--   why we people care about hooks??! cuz they can write it's custom hooks
+- why we people care about hooks??! cuz they can write it's custom hooks
 
 ```javascript
 // ./src/hooks/useForm.js
@@ -1030,15 +1031,15 @@ return (
 import { useState } from "react";
 
 export const useForm = initialState => {
-    const [values, setValues] = useState(initialState);
+  const [values, setValues] = useState(initialState);
 
-    const onChange = event =>
-        setValues(currentValues => ({
-            ...currentValues,
-            [event.target.name]: [event.target.value]
-        }));
+  const onChange = event =>
+    setValues(currentValues => ({
+      ...currentValues,
+      [event.target.name]: [event.target.value]
+    }));
 
-    return [values, onChange];
+  return [values, onChange];
 };
 
 // ./src/App.jsx
@@ -1052,14 +1053,14 @@ return <input name="email" value={values.email} onChange={handleChange} />;
 
 ## useEffect
 
--   clean up function
+- clean up function
 
 ```javascript
 useEffect(() => {
-    console.log("componentWillMount");
-    return () => {
-        console.log("ComponentWillUnmount"); // returned function from useEffect called cleanup function and it will triggered when ever component unmounted
-    };
+  console.log("componentWillMount");
+  return () => {
+    console.log("ComponentWillUnmount"); // returned function from useEffect called cleanup function and it will triggered when ever component unmounted
+  };
 }, []);
 
 // gotcha
@@ -1067,78 +1068,78 @@ useEffect(() => {
 const [email, setEmail] = useState("");
 
 useEffect(() => {
-    console.log("componentWillMount");
-    return () => {
-        console.log("ComponentWillUnmount");
-    };
+  console.log("componentWillMount");
+  return () => {
+    console.log("ComponentWillUnmount");
+  };
 }, ["email"]);
 
 <input onChange={e => setEmail(e.target.value)} />;
 ```
 
--   some use cases example :
+- some use cases example :
 
 1. add and remove event listener
 
 ```javascript
 useEffect(() => {
-    const onMouseMove = e => console.log(e);
+  const onMouseMove = e => console.log(e);
 
-    window.addEventListener("mouseMove", onMouseMove);
+  window.addEventListener("mouseMove", onMouseMove);
 
-    return () => {
-        window.removeEventListener("mouseMove", onMouseMove);
-    };
+  return () => {
+    window.removeEventListener("mouseMove", onMouseMove);
+  };
 }, []);
 ```
 
--   multiple useEffect
+- multiple useEffect
 
 ```javascript
 useEffect(() => {
-    console.log("mount1");
+  console.log("mount1");
 });
 useEffect(() => {
-    console.log("mount2");
+  console.log("mount2");
 });
 // mount1
 // mount2
 ```
 
--   waiting for changes in a custom hook
+- waiting for changes in a custom hook
 
-    ./useFetch.js
+  ./useFetch.js
 
 ```javascript
 export const useFetch = url => {
-    const [state, setState] = useState({ loading: true, data: null });
+  const [state, setState] = useState({ loading: true, data: null });
 
-    useEffect(() => {
-        setState({ loading: true, data: null });
-        fetch(url)
-            .then(res => res.text)
-            .then(res => {
-                setState({ loading: false, data: res });
-            });
-    }, [url]);
+  useEffect(() => {
+    setState({ loading: true, data: null });
+    fetch(url)
+      .then(res => res.text)
+      .then(res => {
+        setState({ loading: false, data: res });
+      });
+  }, [url]);
 
-    return state;
+  return state;
 };
 ```
 
--   persist state
+- persist state
 
 ```javascript
 const [count] = useState(0);
 useEffect(() => {
-    localStorage.setItem("count", JSON.stringify(count));
+  localStorage.setItem("count", JSON.stringify(count));
 }, [count]);
 ```
 
 ### useRef
 
--   most obvious use case
-    is getting reference to some element to call different methods on or give value on it
+- most obvious use case
+  is getting reference to some element to call different methods on or give value on it
 
 ```javascript
 const inputRef = useRef()
@@ -1147,7 +1148,7 @@ const inputRef = useRef()
     <button onClick={() => inputRef.current.focus()}>Focus</button>
 ```
 
--   to reference a value
+- to reference a value
 
 ```javascript
 const renders = useRef(0);
@@ -1157,25 +1158,25 @@ const [state, setState] = useState(true);
 <p>Component renders : {renders.current++}</p>;
 ```
 
--   avoiding setState after component unMounted
+- avoiding setState after component unMounted
 
 ```javascript
 const isCurrent = useRef(true);
 
 function App() {
-    useEffect(() => {
-        // clean up function : called when the component is going to unMount
-        return () => {
-            isCurrent.current(false);
-        };
-    });
-
-    const settingSomeState = () => {
-        if (isCurrent) {
-            // basically if component did not unMount do setState stuff
-            setState({});
-        }
+  useEffect(() => {
+    // clean up function : called when the component is going to unMount
+    return () => {
+      isCurrent.current(false);
     };
+  });
+
+  const settingSomeState = () => {
+    if (isCurrent) {
+      // basically if component did not unMount do setState stuff
+      setState({});
+    }
+  };
 }
 ```
 
@@ -1185,7 +1186,7 @@ function App() {
 
 react recommend starting with useEffect first and only trying useLayoutEffect if that causes a problem.
 
--   getBoundingClientRect (get dimension of an element)
+- getBoundingClientRect (get dimension of an element)
 
 ```javascript
 const inputRef = UseRef()
@@ -1201,7 +1202,7 @@ useLayoutEffect(() => {
 
 it good to prevent from creating a function on every single render,
 
--   prevent reRender child component whenever using memo
+- prevent reRender child component whenever using memo
 
 ```jsx
 const Hello = React.memo((
@@ -1224,15 +1225,15 @@ const App = () => {
 };
 ```
 
--   fire useEffect just when the function change
+- fire useEffect just when the function change
 
 ```jsx
 const App = () => {
-    const increment = useCallback(() => {}, [setCount]);
+  const increment = useCallback(() => {}, [setCount]);
 
-    useEffect(() => {}, [increment]); // useEffect will trigger whenever increment function changed
+  useEffect(() => {}, [increment]); // useEffect will trigger whenever increment function changed
 
-    return <div onClick={increment} />;
+  return <div onClick={increment} />;
 };
 ```
 
@@ -1243,98 +1244,98 @@ Pass a “create” function and an array of dependencies. useMemo will only rec
 ```jsx
 // Without useMemo the function will reCalculate const on every render
 const calculateSomeValue = depend => {
-    // calculating some value
+  // calculating some value
 };
 
 // With useMemo it will trigger calculating some just when dependency/dependencies changed
 
 useMemo(
-    depend => {
-        // calculating some value
-    },
-    [depend]
+  depend => {
+    // calculating some value
+  },
+  [depend]
 );
 
 const App = () => {
-    return (
-        <div>
-            <button onClick={() => setSate(state + 12)}>Hello</button>
-            <div>{calculateSomeValue(depend)}</div>
-        </div>
-    );
+  return (
+    <div>
+      <button onClick={() => setSate(state + 12)}>Hello</button>
+      <div>{calculateSomeValue(depend)}</div>
+    </div>
+  );
 };
 ```
 
--   example 2
+- example 2
 
 ```jsx
 function App() {
-    const data = useFetch("https://jsonplaceholder.typicode.com/todos");
-    const [count, setCount] = useState(0);
+  const data = useFetch("https://jsonplaceholder.typicode.com/todos");
+  const [count, setCount] = useState(0);
 
-    const calculateLongestWord = arr => {
-        let longestWord = " ";
-        console.log("calculating longest word");
-        Array.isArray(arr) &&
-            arr.forEach(todo =>
-                todo.title.split(" ").forEach(word => {
-                    if (word.length > longestWord.length) longestWord = word;
-                })
-            );
-        return longestWord;
-    };
+  const calculateLongestWord = arr => {
+    let longestWord = " ";
+    console.log("calculating longest word");
+    Array.isArray(arr) &&
+      arr.forEach(todo =>
+        todo.title.split(" ").forEach(word => {
+          if (word.length > longestWord.length) longestWord = word;
+        })
+      );
+    return longestWord;
+  };
 
-    const longestWord = useMemo(() => calculateLongestWord(data), [data]);
+  const longestWord = useMemo(() => calculateLongestWord(data), [data]);
 
-    return (
-        <div className="App">
-            <button onClick={() => setCount(count + 1)}>Calculate</button>
-            <div>{longestWord}</div>
-        </div>
-    );
+  return (
+    <div className="App">
+      <button onClick={() => setCount(count + 1)}>Calculate</button>
+      <div>{longestWord}</div>
+    </div>
+  );
 }
 ```
 
 ### userReducer
 
--   basic of useReducer
+- basic of useReducer
 
 ```javascript
 const types = { INCREMENT: "INCREMENT", DECREMENT: "DECREMENT" };
 
 const reducer = (state, action) => {
-    switch (action.type) {
-        case types.INCREMENT:
-            return state + 1;
-        case types.DECREMENT:
-            return state - 1;
-        default:
-            return state;
-    }
+  switch (action.type) {
+    case types.INCREMENT:
+      return state + 1;
+    case types.DECREMENT:
+      return state - 1;
+    default:
+      return state;
+  }
 };
 
 function App() {
-    const [count, dispatch] = userReducer(reducer, 0);
+  const [count, dispatch] = userReducer(reducer, 0);
 
-    return (
-        <div className="App">
-            <button
-                onClick={() => {
-                    dispatch({ type: types.INCREMENT });
-                }}
-            >
-                Increment
-            </button>
-            <button
-                onClick={() => {
-                    dispatch({ type: types.DECREMENT });
-                }}
-            >
-                Decrement
-            </button>
-            <h4>Count : {count}</h4>
-        </div>
-    );
+  return (
+    <div className="App">
+      <button
+        onClick={() => {
+          dispatch({ type: types.INCREMENT });
+        }}
+      >
+        Increment
+      </button>
+      <button
+        onClick={() => {
+          dispatch({ type: types.DECREMENT });
+        }}
+      >
+        Decrement
+      </button>
+      <h4>Count : {count}</h4>
+    </div>
+  );
 }
 ```
 
@@ -1345,59 +1346,59 @@ import { createContext } from "react";
 const UserContext = createContext(null);
 
 export default async () => {
-    return { id: 4, name: "bob", email: "bob@bob.com" };
+  return { id: 4, name: "bob", email: "bob@bob.com" };
 };
 
 function Home() {
-    const { user, setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
-    const handleLogin = useCallback(async () => {
-        const user = await login();
-        setUser(user);
-    }, [setUser]);
+  const handleLogin = useCallback(async () => {
+    const user = await login();
+    setUser(user);
+  }, [setUser]);
 
-    const handleLogout = useCallback(async () => {
-        setUser(null);
-    }, [setUser]);
+  const handleLogout = useCallback(async () => {
+    setUser(null);
+  }, [setUser]);
 
-    return (
-        <div>
-            Home
-            <pre>{JSON.stringify(user, null, 2)}</pre>
-            {!user ? (
-                <button onClick={handleLogin}>login</button>
-            ) : (
-                <button onClick={handleLogout}>Logout</button>
-            )}
-        </div>
-    );
+  return (
+    <div>
+      Home
+      <pre>{JSON.stringify(user, null, 2)}</pre>
+      {!user ? (
+        <button onClick={handleLogin}>login</button>
+      ) : (
+        <button onClick={handleLogout}>Logout</button>
+      )}
+    </div>
+  );
 }
 
 function About() {
-    const { user } = useContext(UserContext);
-    return (
-        <div>
-            Home
-            <pre>{JSON.stringify(user, null, 2)}</pre>
-        </div>
-    );
+  const { user } = useContext(UserContext);
+  return (
+    <div>
+      Home
+      <pre>{JSON.stringify(user, null, 2)}</pre>
+    </div>
+  );
 }
 
 function App() {
-    const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
 
-    return (
-        <Router>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-            <Switch>
-                <UserContext.Provider value={{ user, setUser }}>
-                    <Route exact path="/" component={Home} />
-                    <Route path="/about" component={About} />
-                </UserContext.Provider>
-            </Switch>
-        </Router>
-    );
+  return (
+    <Router>
+      <Link to="/">Home</Link>
+      <Link to="/about">About</Link>
+      <Switch>
+        <UserContext.Provider value={{ user, setUser }}>
+          <Route exact path="/" component={Home} />
+          <Route path="/about" component={About} />
+        </UserContext.Provider>
+      </Switch>
+    </Router>
+  );
 }
 ```
 
@@ -1446,48 +1447,48 @@ a === c; // true
 
 terminology:
 
--   We can create a pureComponent by extending the PureComponent on React
--   **A PureComponent implements the _shouldComponentUpdate_ method by performing a _shallow comparison_ on the _props_ and _state_ of the component**
--   if there is not difference, the component will not re-render - performing boost.
+- We can create a pureComponent by extending the PureComponent on React
+- **A PureComponent implements the _shouldComponentUpdate_ method by performing a _shallow comparison_ on the _props_ and _state_ of the component**
+- if there is not difference, the component will not re-render - performing boost.
 
 caveats:
 
--   it is best practice to ensure that all the children components are also pure component to avoid unexpected behavior.
--   never **mutate** the state, Always return a **new object** that reflects the state.
+- it is best practice to ensure that all the children components are also pure component to avoid unexpected behavior.
+- never **mutate** the state, Always return a **new object** that reflects the state.
 
 ```javascript
 class Regular extends Component {
-    render() {
-        console.log("REGULAR");
-        return <p>{this.props.children}</p>;
-    }
+  render() {
+    console.log("REGULAR");
+    return <p>{this.props.children}</p>;
+  }
 }
 
 class Regular extends PureComponent {
-    render() {
-        console.log("PURE");
-        return <p>{this.props.children}</p>;
-    }
+  render() {
+    console.log("PURE");
+    return <p>{this.props.children}</p>;
+  }
 }
 
 class App extends Component {
-    state = { name: "Geo" };
+  state = { name: "Geo" };
 
-    render() {
-        console.log("APP");
-        const { name } = this.state;
-        return (
-            <div className="App">
-                <button onClick={this.handleClick}>addRandom</button>
-                <Regular>{name}</Regular>
-                <Pure>{name}</Pure>
-            </div>
-        );
-    }
+  render() {
+    console.log("APP");
+    const { name } = this.state;
+    return (
+      <div className="App">
+        <button onClick={this.handleClick}>addRandom</button>
+        <Regular>{name}</Regular>
+        <Pure>{name}</Pure>
+      </div>
+    );
+  }
 
-    handleClick = () => {
-        this.setState(st => ({ name: "Geo" }));
-    };
+  handleClick = () => {
+    this.setState(st => ({ name: "Geo" }));
+  };
 }
 ```
 
@@ -1510,3 +1511,188 @@ REGULAR
 .
 ​```
 ````
+
+### Axios explained
+
+#### axiosResponse
+
+```json
+{
+  "status": 200,
+  "headers": {
+    "x-total-count": "200",
+    "pragma": "no-cache",
+    "content-type": "application/json; charset=utf-8",
+    "cache-control": "public, max-age=14400",
+    "expires": "Mon, 28 Oct 2019 14:09:52 GMT"
+  },
+  "data": [
+    {
+      "userId": 1,
+      "id": 1,
+      "title": "delectus aut autem",
+      "completed": false
+    },
+    {
+      "userId": 1,
+      "id": 2,
+      "title": "quis ut nam facilis et officia qui",
+      "completed": false
+    },
+    {
+      "userId": 1,
+      "id": 3,
+      "title": "fugiat veniam minus",
+      "completed": false
+    },
+    {
+      "userId": 1,
+      "id": 4,
+      "title": "et porro tempora",
+      "completed": true
+    },
+    {
+      "userId": 1,
+      "id": 5,
+      "title": "laboriosam mollitia et enim quasi adipisci quia provident illum",
+      "completed": false
+    }
+  ],
+  "config": {
+    "url": "https://jsonplaceholder.typicode.com/todos",
+    "params": {
+      "_limit": 5
+    },
+    "headers": {
+      "Accept": "application/json, text/plain, */*"
+    },
+    "transformRequest": [null],
+    "transformResponse": [null],
+    "timeout": 0,
+    "xsrfCookieName": "XSRF-TOKEN",
+    "xsrfHeaderName": "X-XSRF-TOKEN",
+    "maxContentLength": -1,
+    "method": "get"
+  }
+}
+```
+
+#### params and timeout
+
+```typescript
+axios("http", {
+  params: { _limit: 5 },
+  timeout: 5000 // if not resolved after 5000 ms throw an Error
+});
+```
+
+#### axios.all and axios.spread
+
+```typescript
+axios.all([axios("http"), axios.delete("https")]).then(
+  // axios.spread(***() => {})
+  axios.spread((getResponse, deleteResponse) => {
+    console.log(getResponse, deleteResponse);
+  })
+);
+```
+
+#### axios.interceptor
+
+```typescript
+// on every request
+axios.interceptor.request.use(
+  config => {
+    console.info(
+      `${config.method!.toUpperCase()} request sent to ${
+        config!.url
+      } at ${new Date().getTime()} `
+    );
+    return config; // ***
+  },
+  //***
+  err => Promise.reject(err)
+);
+
+// on every response
+axios.interceptor.response.use(res => res, err => promise.reject(res));
+```
+
+#### custom headers
+
+```typescript
+axios("http", {
+  headers: { "content-type": "application/json", authorization: "token" }
+})``;
+```
+
+#### transformResponse or transformRequest
+
+```typescript
+axios.post('http',{title: 'uppercase me at response'}, {transformResponse: axios.defaults.transformResponse.concat (data) => {
+    data.tile  = data.toUpperCase()
+    return data
+}})
+// typescript strict implementation is available at ./axiosExplained/script.ts
+```
+
+#### axios globals
+
+```typescript
+axios.defaults.headers.common["x-auth-token"] = "token";
+```
+
+#### error handling
+
+```typescript
+axios
+  .get("https://jsonplaceholder.typicode.com/todoss", {
+    validateStatus: status => {
+      // reject just if status is less or equal to 500
+      return status > 500;
+    }
+  })
+  .catch(err => {
+    if (err.response) {
+      // Server responded with a status other than 200 range
+      console.log(err.response);
+    }
+    // Request was made but no response
+    console.log(err.request);
+    console.log(err.message);
+  });
+```
+
+#### axios.CancelToken
+
+```typescript
+axios.getElementById("cancel").addEventHandler(() => {
+  const source = axios.CancelToken.source();
+
+  axios
+    .get("http", {
+      cancelToken: source.token
+    })
+    .then(res => res)
+    .catch(err => {
+      if (axios.isCancel(err)) {
+        console.log("Request was canceled!", err.message);
+      }
+    });
+
+  if (true) {
+    source.cancel("request canceled!");
+  }
+});
+```
+
+#### axios instance
+
+```typescript
+const axiosInstance = axios.create({
+  // custom settings
+  baseURL: "https://jsonplaceholder.typicode.com"
+});
+
+const res = await axiosInstance("/comments", { params: { _limit: 5 } });
+```

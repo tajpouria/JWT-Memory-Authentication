@@ -1,0 +1,102 @@
+html,
+body {
+  --main_font: "Courier New", Courier, monospace;
+  --main_color: #eee;
+  --main_margin: 2vh 1vw;
+  --main_padding: 1vh 1vw;
+  --main_border: 1px solid lightgrey;
+
+  height: 100%;
+  margin: 0;
+  background-color: var(--main_color);
+}
+
+/*  */
+
+.horizontal__splitter {
+  display: grid;
+  grid-template: repeat(2, 1fr) / 1fr;
+}
+
+.flex__container--center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex__wrap {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/*  */
+
+.full-filled {
+  height: 100%;
+  width: 100%;
+}
+
+.title--regular {
+  font-family: var(--main_font);
+  margin: var(--main_margin);
+}
+
+.card__container {
+  margin: var(--main_margin);
+}
+
+.card__title {
+  font-family: var(--main_font);
+  font-weight: bold;
+  padding: var(--main_padding);
+  border: var(--main_border);
+  background-color: lightgray;
+}
+.card__content {
+  font-family: var(--main_font);
+  font-weight: bold;
+  padding: var(--main_padding);
+  border: var(--main_border);
+}
+
+.button {
+  height: 5vh;
+  padding: var(--main_padding);
+  margin: var(--main_margin);
+  border-radius: 5px;
+  background: var(--main_color);
+  box-shadow: 5px 5px 8px #444;
+  border: none;
+  color: #444;
+  font-family: var(--main_font);
+  font-weight: bold;
+  font-size: 1rem;
+}
+.button:hover {
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.button-green {
+  background-color: darkcyan;
+  color: var(--main_color);
+}
+.button-blue {
+  background-color: cornflowerblue;
+  color: var(--main_color);
+}
+.button-orange {
+  background-color: orange;
+  color: var(--main_color);
+}
+.button-yellow {
+  background-color: yellow;
+}
+.button-red {
+  background-color: darkred;
+  color: var(--main_color);
+}
+.button-gray {
+  background-color: gray;
+  color: var(--main_color);
+}

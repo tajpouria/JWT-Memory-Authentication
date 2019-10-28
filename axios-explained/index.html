@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="script.ts"></script>
+    <title>Axios Explained</title>
+  </head>
+  <body>
+    <div class="horizontal__splitter full-filled">
+      <div class="horizontal__splitter">
+        <h1 class="title--regular flex__container--center">
+          Axios Introduction
+        </h1>
+        <div class="flex__container--center flex__wrap">
+          <button id="get" class="button button-green">GET</button>
+          <button id="post" class="button button-blue">POST</button>
+          <button id="patch" class="button button-orange">PATCH</button>
+          <button id="put" class="button button-yellow">PUT</button>
+          <button id="delete" class="button button-red">DELETE</button>
+          <button id="all" class="button button-gray">axios.all</button>
+          <button id="transform" class="button button-gray">
+            transformResponse
+          </button>
+          <button id="error" class="button button-red">ErrorHandling</button>
+          <button id="cancel" class="button button-gray">cancelRequest</button>
+          <button id="instance" class="button button-gray">
+            axiosInstance
+          </button>
+        </div>
+      </div>
+      <div class="horizontal-splitter">
+        <div class="horizontal-splitter card__container">
+          <div id="status" class="card__content"></div>
+        </div>
+        <div class="horizontal-splitter card__container">
+          <div class="card__title">headers</div>
+          <div class="card__content">
+            <pre id="headers"></pre>
+          </div>
+        </div>
+        <div class="horizontal-splitter card__container">
+          <div class="card__title">Data</div>
+          <div class="card__content">
+            <pre id="data"></pre>
+          </div>
+        </div>
+        <div class="horizontal-splitter card__container">
+          <div class="card__title">Config</div>
+          <div class="card__content">
+            <pre id="config"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
