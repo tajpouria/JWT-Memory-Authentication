@@ -1402,11 +1402,13 @@ function App() {
 }
 ```
 
+## Introduction to React lazy and suspense
+
 ## Interesting Stuff
 
 ### preferred tsconfig
 
-> npx tscofig.json
+> npx tsconfig.json
 
 ### upgrade packages
 
