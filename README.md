@@ -1698,21 +1698,3 @@ function App() {
   );
 }
 ```
-
-## Introduction to React lazy and suspense
-
-### lazy and Suspense
-
-./src/App.tsx
-
-```typescript
-const Nav = lazy(() => import("./components/nav"));
-
-export const App = () => (
-  <React.Suspense fallback={<p>Loading...</p>}>
-    <Nav />
-  </React.Suspense>
-);
-```
-
-### Suspense with router
