@@ -999,6 +999,303 @@ export default function {
 }
 ```
 
+## Interesting Stuff
+
+### preferred tsconfig
+
+> npx tsconfig.json
+
+### upgrade packages
+
+> yarn upgrade-interactive --latest
+
+### postgres
+
+DROP DATABASE already accessing by other users:
+
+> sudo /etc/init.d/postgresql stop
+> sudo /etc/init.d/postgresql start
+
+### dotenv
+
+> yarn add dotenv
+
+```typescript
+import "dotenv/config";
+// release environment variables at .env file at the actual environment
+```
+
+### Axios explained
+
+#### axiosResponse
+
+```json
+{
+  "status": 200,
+  "headers": {
+    "x-total-count": "200",
+    "pragma": "no-cache",
+    "content-type": "application/json; charset=utf-8",
+    "cache-control": "public, max-age=14400",
+    "expires": "Mon, 28 Oct 2019 14:09:52 GMT"
+  },
+  "data": [
+    {
+      "userId": 1,
+      "id": 1,
+      "title": "delectus aut autem",
+      "completed": false
+    },
+    {
+      "userId": 1,
+      "id": 2,
+      "title": "quis ut nam facilis et officia qui",
+      "completed": false
+    },
+    {
+      "userId": 1,
+      "id": 3,
+      "title": "fugiat veniam minus",
+      "completed": false
+    },
+    {
+      "userId": 1,
+      "id": 4,
+      "title": "et porro tempora",
+      "completed": true
+    },
+    {
+      "userId": 1,
+      "id": 5,
+      "title": "laboriosam mollitia et enim quasi adipisci quia provident illum",
+      "completed": false
+    }
+  ],
+  "config": {
+    "url": "https://jsonplaceholder.typicode.com/todos",
+    "params": {
+      "_limit": 5
+    },
+    "headers": {
+      "Accept": "application/json, text/plain, */*"
+    },
+    "transformRequest": [null],
+    "transformResponse": [null],
+    "timeout": 0,
+    "xsrfCookieName": "XSRF-TOKEN",
+    "xsrfHeaderName": "X-XSRF-TOKEN",
+    "maxContentLength": -1,
+    "method": "get"
+  }
+}
+```
+
+#### params and timeout
+
+```typescript
+axios("http", {
+  params: { _limit: 5 },
+  timeout: 5000 // if not resolved after 5000 ms throw an Error
+});
+```
+
+#### axios.all and axios.spread
+
+```typescript
+axios.all([axios("http"), axios.delete("https")]).then(
+  // axios.spread(***() => {})
+  axios.spread((getResponse, deleteResponse) => {
+    console.log(getResponse, deleteResponse);
+  })
+);
+```
+
+#### axios.interceptor
+
+```typescript
+// on every request
+axios.interceptor.request.use(
+  config => {
+    console.info(
+      `${config.method!.toUpperCase()} request sent to ${
+        config!.url
+      } at ${new Date().getTime()} `
+    );
+    return config; // ***
+  },
+  //***
+  err => Promise.reject(err)
+);
+
+// on every response
+axios.interceptor.response.use(res => res, err => promise.reject(res));
+```
+
+#### custom headers
+
+```typescript
+axios("http", {
+  headers: { "content-type": "application/json", authorization: "token" }
+})``;
+```
+
+#### transformResponse or transformRequest
+
+```typescript
+axios.post('http',{title: 'uppercase me at response'}, {transformResponse: axios.defaults.transformResponse.concat (data) => {
+    data.tile  = data.toUpperCase()
+    return data
+}})
+// typescript strict implementation is available at ./axiosExplained/script.ts
+```
+
+#### axios globals
+
+```typescript
+axios.defaults.headers.common["x-auth-token"] = "token";
+```
+
+#### error handling
+
+```typescript
+axios
+  .get("https://jsonplaceholder.typicode.com/todoss", {
+    validateStatus: status => {
+      // reject just if status is less or equal to 500
+      return status > 500;
+    }
+  })
+  .catch(err => {
+    if (err.response) {
+      // Server responded with a status other than 200 range
+      console.log(err.response);
+    }
+    // Request was made but no response
+    console.log(err.request);
+    console.log(err.message);
+  });
+```
+
+#### axios.CancelToken
+
+```typescript
+axios.getElementById("cancel").addEventHandler(() => {
+  const source = axios.CancelToken.source();
+
+  axios
+    .get("http", {
+      cancelToken: source.token
+    })
+    .then(res => res)
+    .catch(err => {
+      if (axios.isCancel(err)) {
+        console.log("Request was canceled!", err.message);
+      }
+    });
+
+  if (true) {
+    source.cancel("request canceled!");
+  }
+});
+```
+
+#### axios instance
+
+```typescript
+const axiosInstance = axios.create({
+  // custom settings
+  baseURL: "https://jsonplaceholder.typicode.com"
+});
+
+const res = await axiosInstance("/comments", { params: { _limit: 5 } });
+```
+
+# React SandBox
+
+### shallow comparison
+
+```javascript
+const a = [1, 2, 3];
+const b = [1, 2, 3];
+const c = a;
+
+// false cuz they not referencing to the same place at the memory
+a === b;
+
+a === c; // true
+
+// same in objects
+```
+
+### React.pureComponent
+
+terminology:
+
+- We can create a pureComponent by extending the PureComponent on React
+- **A PureComponent implements the _shouldComponentUpdate_ method by performing a _shallow comparison_ on the _props_ and _state_ of the component**
+- if there is not difference, the component will not re-render - performing boost.
+
+caveats:
+
+- it is best practice to ensure that all the children components are also pure component to avoid unexpected behavior.
+- never **mutate** the state, Always return a **new object** that reflects the state.
+
+```javascript
+class Regular extends Component {
+  render() {
+    console.log("REGULAR");
+    return <p>{this.props.children}</p>;
+  }
+}
+
+class Regular extends PureComponent {
+  render() {
+    console.log("PURE");
+    return <p>{this.props.children}</p>;
+  }
+}
+
+class App extends Component {
+  state = { name: "Geo" };
+
+  render() {
+    console.log("APP");
+    const { name } = this.state;
+    return (
+      <div className="App">
+        <button onClick={this.handleClick}>addRandom</button>
+        <Regular>{name}</Regular>
+        <Pure>{name}</Pure>
+      </div>
+    );
+  }
+
+  handleClick = () => {
+    this.setState(st => ({ name: "Geo" }));
+  };
+}
+```
+
+In mentioned example cuz shallow rendering happened on _PureComponent_ we receive following result on each re-render:
+
+````shell
+APP
+REGULAR
+PURE # pure just render once
+APP
+REGULAR
+APP
+REGULAR
+APP
+REGULAR
+APP
+REGULAR
+.
+.
+.
+​```
+````
+
 ## React Hook Reminder
 
 ### useState
@@ -1419,402 +1716,3 @@ export const App = () => (
 ```
 
 ### Suspense with router
-
-./src/App.tsx
-
-```typescript
-export const App = () => (
-  <React.Suspense fallback={<div>loading...</div>}>
-    <Router>
-      <Home path="/" />
-    </Router>
-  </React.Suspense>
-);
-```
-
-### useFetchSuspense custom hook
-
-./src/hooks/useFetchSuspense.ts
-
-```typescript
-import LRU from "lru-cache";
-import md5 from "md5";
-
-enum Status {
-  pending = "pending",
-  resolved = "resolved"
-}
-
-const cache = new LRU(50);
-
-export const useFetchSuspense = (
-  url: string,
-  suspenseFetchOptions: RequestInit = {}
-) => {
-  const key = `${url}.${md5(JSON.stringify(suspenseFetchOptions))}`;
-
-  const value: any = cache.get(key) || {
-    status: Status.pending,
-    data: undefined
-  };
-
-  if (value.status === Status.resolved) {
-    return value.data;
-  }
-
-  const promise = fetch(url, suspenseFetchOptions).then(res => res.json());
-
-  promise.then(data => {
-    cache.set(key, { status: Status.resolved, data });
-  });
-
-  throw promise;
-};
-```
-
-./pages/Home.tsx
-
-```typescript
-export const Home = () => (
-  <React.Suspense fallback={<p>Loading...</p>}>
-    <div>
-      {useFetchSuspense("url").data.map(d => (
-        <li key={d.id}>d.title</li>
-      ))}
-    </div>
-  </React.Suspense>
-);
-```
-
-### useWorker custom hook
-
-```typescript
-import LRU from "lru-cache";
-import md5 from "md5";
-import workerpool from "workerpool";
-
-enum Status {
-  pending = "pending",
-  resolved = "resolved"
-}
-
-const cache = new LRU(50);
-
-const pool = workerpool.pool();
-
-export const useWorker = (worker: Function, args: any[] = []) => {
-  const key = `${worker.name}.${md5(JSON.stringify(args))}`;
-
-  const value: any = cache.get(key) || {
-    status: Status.pending,
-    data: undefined
-  };
-
-  if (value.status === Status.resolved) {
-    return value.data;
-  }
-
-  const promise = pool.exec(worker as any, args);
-
-  promise.then(data => {
-    cache.set(key, { status: Status.resolved, data });
-  });
-
-  throw promise;
-};
-```
-
-## Interesting Stuff
-
-### preferred tsconfig
-
-> npx tsconfig.json
-
-### upgrade packages
-
-> yarn upgrade-interactive --latest
-
-### postgres
-
-DROP DATABASE already accessing by other users:
-
-> sudo /etc/init.d/postgresql stop
-> sudo /etc/init.d/postgresql start
-
-### dotenv
-
-> yarn add dotenv
-
-```typescript
-import "dotenv/config";
-// release environment variables at .env file at the actual environment
-```
-
-### shallow comparison
-
-```javascript
-const a = [1, 2, 3];
-const b = [1, 2, 3];
-const c = a;
-
-// false cuz they not referencing to the same place at the memory
-a === b;
-
-a === c; // true
-
-// same in objects
-```
-
-### React.pureComponent
-
-terminology:
-
-- We can create a pureComponent by extending the PureComponent on React
-- **A PureComponent implements the _shouldComponentUpdate_ method by performing a _shallow comparison_ on the _props_ and _state_ of the component**
-- if there is not difference, the component will not re-render - performing boost.
-
-caveats:
-
-- it is best practice to ensure that all the children components are also pure component to avoid unexpected behavior.
-- never **mutate** the state, Always return a **new object** that reflects the state.
-
-```javascript
-class Regular extends Component {
-  render() {
-    console.log("REGULAR");
-    return <p>{this.props.children}</p>;
-  }
-}
-
-class Regular extends PureComponent {
-  render() {
-    console.log("PURE");
-    return <p>{this.props.children}</p>;
-  }
-}
-
-class App extends Component {
-  state = { name: "Geo" };
-
-  render() {
-    console.log("APP");
-    const { name } = this.state;
-    return (
-      <div className="App">
-        <button onClick={this.handleClick}>addRandom</button>
-        <Regular>{name}</Regular>
-        <Pure>{name}</Pure>
-      </div>
-    );
-  }
-
-  handleClick = () => {
-    this.setState(st => ({ name: "Geo" }));
-  };
-}
-```
-
-In mentioned example cuz shallow rendering happened on _PureComponent_ we receive following result on each re-render:
-
-````shell
-APP
-REGULAR
-PURE # pure just render once
-APP
-REGULAR
-APP
-REGULAR
-APP
-REGULAR
-APP
-REGULAR
-.
-.
-.
-​```
-````
-
-### Axios explained
-
-#### axiosResponse
-
-```json
-{
-  "status": 200,
-  "headers": {
-    "x-total-count": "200",
-    "pragma": "no-cache",
-    "content-type": "application/json; charset=utf-8",
-    "cache-control": "public, max-age=14400",
-    "expires": "Mon, 28 Oct 2019 14:09:52 GMT"
-  },
-  "data": [
-    {
-      "userId": 1,
-      "id": 1,
-      "title": "delectus aut autem",
-      "completed": false
-    },
-    {
-      "userId": 1,
-      "id": 2,
-      "title": "quis ut nam facilis et officia qui",
-      "completed": false
-    },
-    {
-      "userId": 1,
-      "id": 3,
-      "title": "fugiat veniam minus",
-      "completed": false
-    },
-    {
-      "userId": 1,
-      "id": 4,
-      "title": "et porro tempora",
-      "completed": true
-    },
-    {
-      "userId": 1,
-      "id": 5,
-      "title": "laboriosam mollitia et enim quasi adipisci quia provident illum",
-      "completed": false
-    }
-  ],
-  "config": {
-    "url": "https://jsonplaceholder.typicode.com/todos",
-    "params": {
-      "_limit": 5
-    },
-    "headers": {
-      "Accept": "application/json, text/plain, */*"
-    },
-    "transformRequest": [null],
-    "transformResponse": [null],
-    "timeout": 0,
-    "xsrfCookieName": "XSRF-TOKEN",
-    "xsrfHeaderName": "X-XSRF-TOKEN",
-    "maxContentLength": -1,
-    "method": "get"
-  }
-}
-```
-
-#### params and timeout
-
-```typescript
-axios("http", {
-  params: { _limit: 5 },
-  timeout: 5000 // if not resolved after 5000 ms throw an Error
-});
-```
-
-#### axios.all and axios.spread
-
-```typescript
-axios.all([axios("http"), axios.delete("https")]).then(
-  // axios.spread(***() => {})
-  axios.spread((getResponse, deleteResponse) => {
-    console.log(getResponse, deleteResponse);
-  })
-);
-```
-
-#### axios.interceptor
-
-```typescript
-// on every request
-axios.interceptor.request.use(
-  config => {
-    console.info(
-      `${config.method!.toUpperCase()} request sent to ${
-        config!.url
-      } at ${new Date().getTime()} `
-    );
-    return config; // ***
-  },
-  //***
-  err => Promise.reject(err)
-);
-
-// on every response
-axios.interceptor.response.use(res => res, err => promise.reject(res));
-```
-
-#### custom headers
-
-```typescript
-axios("http", {
-  headers: { "content-type": "application/json", authorization: "token" }
-})``;
-```
-
-#### transformResponse or transformRequest
-
-```typescript
-axios.post('http',{title: 'uppercase me at response'}, {transformResponse: axios.defaults.transformResponse.concat (data) => {
-    data.tile  = data.toUpperCase()
-    return data
-}})
-// typescript strict implementation is available at ./axiosExplained/script.ts
-```
-
-#### axios globals
-
-```typescript
-axios.defaults.headers.common["x-auth-token"] = "token";
-```
-
-#### error handling
-
-```typescript
-axios
-  .get("https://jsonplaceholder.typicode.com/todoss", {
-    validateStatus: status => {
-      // reject just if status is less or equal to 500
-      return status > 500;
-    }
-  })
-  .catch(err => {
-    if (err.response) {
-      // Server responded with a status other than 200 range
-      console.log(err.response);
-    }
-    // Request was made but no response
-    console.log(err.request);
-    console.log(err.message);
-  });
-```
-
-#### axios.CancelToken
-
-```typescript
-axios.getElementById("cancel").addEventHandler(() => {
-  const source = axios.CancelToken.source();
-
-  axios
-    .get("http", {
-      cancelToken: source.token
-    })
-    .then(res => res)
-    .catch(err => {
-      if (axios.isCancel(err)) {
-        console.log("Request was canceled!", err.message);
-      }
-    });
-
-  if (true) {
-    source.cancel("request canceled!");
-  }
-});
-```
-
-#### axios instance
-
-```typescript
-const axiosInstance = axios.create({
-  // custom settings
-  baseURL: "https://jsonplaceholder.typicode.com"
-});
-
-const res = await axiosInstance("/comments", { params: { _limit: 5 } });
-```
