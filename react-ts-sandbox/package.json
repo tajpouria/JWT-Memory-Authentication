@@ -13,7 +13,8 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-scripts": "3.2.0",
-    "typescript": "3.7.2"
+    "typescript": "3.7.2",
+    "workerpool": "^5.0.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -39,6 +40,7 @@
   "devDependencies": {
     "@types/lru-cache": "^5.1.0",
     "@types/md5": "^2.1.33",
-    "@types/reach__router": "^1.2.6"
+    "@types/reach__router": "^1.2.6",
+    "@types/workerpool": "^5.0.0"
   }
 }
