@@ -1210,6 +1210,10 @@ const axiosInstance = axios.create({
 const res = await axiosInstance("/comments", { params: { _limit: 5 } });
 ```
 
+## Introduction to Formik2
+
+[branch formik2](https://github.com/tajpouria/JWT-Memory-Authentication/tree/formik2/react-ts-sandbox)
+
 # React SandBox
 
 ### shallow comparison
