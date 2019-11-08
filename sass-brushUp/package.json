@@ -1,0 +1,13 @@
+{
+  "name": "css-brushup",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel"
+  },
+  "devDependencies": {
+    "parcel": "^1.12.4",
+    "sass": "^1.23.3"
+  }
+}
