@@ -1,0 +1,32 @@
+$primary-color: #272727;
+$secondary-color: orange;
+$primary-font: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+$font-weight: (
+  "regular": 100,
+  "bold": bold
+);
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::after,
+*::before {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+@function set-text-color($color) {
+  @if (lightness($color) >= 40%) {
+    @return #000;
+  } @else {
+    @return #fff;
+  }
+}
+
+@mixin transition-ease {
+  transition: all 0.5s ease-in-out;
+}

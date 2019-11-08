@@ -1,0 +1,36 @@
+.home {
+  height: 100%;
+  background: linear-gradient(
+      to left,
+      rgba($primary-color, 0.7),
+      rgba($primary-color, 0)
+    ),
+    url("../assets//person.jpg") center top;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .introduce {
+    width: 100%;
+
+    &__jobs,
+    &__name,
+    &__title {
+      text-align: center;
+    }
+
+    &__title {
+      line-height: 2rem;
+    }
+
+    &__name {
+      font-weight: map-get($map: $font-weight, $key: bold);
+      border-bottom: 0.05rem solid set-text-color($primary-color);
+
+      &--last {
+        color: $secondary-color;
+      }
+    }
+  }
+}

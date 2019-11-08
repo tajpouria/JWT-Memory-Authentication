@@ -1,0 +1,67 @@
+@import "./config";
+@import "./home";
+@import "./menu";
+
+body {
+  height: 100vh;
+  width: 100vw;
+  background-color: $primary-color;
+  color: set-text-color($primary-color);
+  line-height: 1;
+}
+
+h1 {
+  font-size: 3rem;
+  font-family: $primary-font;
+  font-weight: map-get($map: $font-weight, $key: regular);
+}
+
+h2,
+h3 {
+  font-size: 1rem;
+  font-weight: map-get($map: $font-weight, $key: regular);
+  font-family: $primary-font;
+}
+
+a {
+  @include transition-ease;
+  font-family: $primary-font;
+  text-decoration: none;
+  color: set-text-color($primary-color);
+  margin: 0 0.1rem;
+
+  &:hover {
+    color: $secondary-color;
+    cursor: pointer;
+  }
+
+  &:focus {
+    color: $secondary-color;
+  }
+}
+
+header {
+  position: fixed;
+  width: 100%;
+}
+
+main {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  background-size: cover;
+}
+
+footer {
+  width: 100%;
+  position: fixed;
+  bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+  padding: 0 0.5rem;
+  color: set-text-color($primary-color);
+}
