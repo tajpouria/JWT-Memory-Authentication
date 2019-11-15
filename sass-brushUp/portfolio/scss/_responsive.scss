@@ -1,0 +1,46 @@
+@include media-md {
+  .menu-btn {
+    visibility: hidden;
+  }
+
+  .nav {
+    visibility: visible;
+    transform: translateY(0);
+    background: transparent;
+    display: block;
+
+    &__menu {
+      display: block;
+      text-align: right;
+      height: auto;
+      padding-top: 1rem;
+    }
+
+    &__item {
+      font-size: 1.5rem;
+      padding: 1rem;
+
+      display: inline;
+    }
+  }
+
+  .projects {
+    &__list {
+      grid-template: auto/ repeat(2, 1fr);
+      margin-top: 90vh;
+
+      &-item {
+        display: block;
+        height: 40vh;
+      }
+    }
+  }
+}
+
+@include media-lg {
+  .projects {
+    &__list {
+      grid-template: auto/ repeat(3, 1fr);
+    }
+  }
+}

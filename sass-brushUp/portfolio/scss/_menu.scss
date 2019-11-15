@@ -1,5 +1,6 @@
 .menu-btn {
   position: absolute;
+  z-index: 1;
   right: 1rem;
   top: 1rem;
   height: 20px;
@@ -48,6 +49,61 @@
           width: 28px;
         }
       }
+    }
+  }
+}
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  visibility: hidden;
+  transform: translateY(-100vh);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: column wrap;
+  background: $primary-color;
+  opacity: 0.98;
+  @include transition-ease;
+
+  &.open {
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  &__menu {
+    height: 20vh;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: stretch;
+    justify-content: space-between;
+    list-style: none;
+    color: set-text-color($primary-color);
+  }
+
+  &__item {
+    font-size: 1.5rem;
+    text-align: center;
+    transform: translateX(100vw);
+    text-transform: uppercase;
+    @include transition-ease;
+
+    &.open {
+      transform: translateX(0);
+    }
+
+    // NavBar Items X transform delay
+    @for $i from 1 through 4 {
+      &:nth-child(#{$i}) {
+        transition-delay: ($i * 0.1s) + 0.15s;
+      }
+    }
+
+    & :hover {
+      color: $secondary-color;
     }
   }
 }
