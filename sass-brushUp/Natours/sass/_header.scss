@@ -1,0 +1,49 @@
+.header {
+  position: relative;
+  height: 95vh;
+  background-image: linear-gradient(to right bottom, #28b485a8, $light-green),
+    url(../assets/person.jpg);
+  background-size: cover;
+  background-position: top;
+  clip-path: polygon(0 0, 100% 0, 100% 75vh, 0 100%);
+
+  &__logo-box {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+
+    &__logo {
+      height: 60px;
+      width: 60px;
+    }
+  }
+
+  &__text-box {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+
+    &__primary {
+      backface-visibility: hidden;
+      margin-bottom: 60px;
+      &__main {
+        display: block;
+        color: #fff;
+        font-size: 60px;
+        letter-spacing: 35px;
+        animation: move-in-left 1s ease-in-out;
+        text-transform: uppercase;
+      }
+      &__sub {
+        display: block;
+        color: #fff;
+        font-size: 20px;
+        letter-spacing: 13px;
+        animation: move-in-right 1s ease-in-out;
+        text-transform: uppercase;
+      }
+    }
+  }
+}

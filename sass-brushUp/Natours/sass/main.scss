@@ -1,0 +1,68 @@
+@import "constants";
+@import "header";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Courier New", Courier, monospace, sans-serif;
+  padding: 35px;
+}
+
+.btn {
+  display: inline-block;
+  position: relative;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 15px 40px;
+  background-color: darkcyan;
+  color: #fff;
+  font-weight: 400;
+  border-radius: 100px;
+  transition: all 0.2s;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    display: block;
+    height: 100%;
+    width: 100%;
+    background-color: darkcyan;
+    border-radius: 100px;
+    transition: all 0.4s;
+  }
+
+  &:hover {
+    transform: translate(0, -5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+
+    &::after {
+      transform: scaleX(1.4) scaleY(1.6);
+      opacity: 0;
+    }
+  }
+  &:active {
+    transform: translate(0, -3px);
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  &--white {
+    background-color: #fff;
+    color: #000;
+
+    &::after {
+      background-color: #fff;
+    }
+  }
+
+  &--animated {
+    animation: move-in-up 0.7s ease-out 1s;
+    animation-fill-mode: backwards;
+  }
+}
