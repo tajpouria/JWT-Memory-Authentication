@@ -9,41 +9,42 @@
 
   &__logo-box {
     position: absolute;
-    left: 12px;
-    top: 12px;
-
-    &__logo {
-      height: 60px;
-      width: 60px;
-    }
+    left: 1.2rem;
+    top: 1.2rem;
   }
 
-  &__text-box {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+  &__logo {
+    height: 6rem;
+    width: 6rem;
+  }
+}
 
-    &__primary {
-      backface-visibility: hidden;
-      margin-bottom: 60px;
-      &__main {
-        display: block;
-        color: #fff;
-        font-size: 60px;
-        letter-spacing: 35px;
-        animation: move-in-left 1s ease-in-out;
-        text-transform: uppercase;
-      }
-      &__sub {
-        display: block;
-        color: #fff;
-        font-size: 20px;
-        letter-spacing: 13px;
-        animation: move-in-right 1s ease-in-out;
-        text-transform: uppercase;
-      }
-    }
+.text-box {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+
+  &__primary {
+    backface-visibility: hidden;
+    margin-bottom: 6rem;
+  }
+
+  &--main {
+    display: block;
+    color: #fff;
+    font-size: 6rem;
+    letter-spacing: 3.5rem;
+    animation: move-in-left 1s ease-in-out;
+    text-transform: uppercase;
+  }
+  &--sub {
+    display: block;
+    color: #fff;
+    font-size: 2rem;
+    letter-spacing: 1.3rem;
+    animation: move-in-right 1s ease-in-out;
+    text-transform: uppercase;
   }
 }
